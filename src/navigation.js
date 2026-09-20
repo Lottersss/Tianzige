@@ -1,6 +1,7 @@
 // src/navigation.js
 import { exercisesFor, grammarFor, textsFor } from './data/content-index.js';
 import { HSK_WORDS, lessonKeysFor } from './data/index.js';
+import { lessonTitleFor } from './data/lesson-titles.js';
 import { BOOKS, CURRENT_BOOK } from './data/meta.js';
 import { el, showView, shuffle } from './dom.js';
 import { bookKnownCount, collectDueWords, lessonKnownCount, overallCount, readyBooksLabel } from './progress.js';
@@ -157,7 +158,10 @@ import { count } from './vendor/hanzi-writer.esm.js';
         st.textContent = "\u2713";
         tile.appendChild(st);
       }
-      tile.innerHTML += '<span class="lesson-num">\u0423\u0440\u043E\u043A ' + lk + '</span><span class="lesson-count">' + known + "/" + words.length + " \u0441\u043B\u043E\u0432</span>";
+      const title = lessonTitleFor(bookId, lk);
+      tile.innerHTML += '<span class="lesson-num">' + lk + '</span>' +
+        (title ? '<span class="lesson-title">' + title.zh + '</span>' : '<span class="lesson-title">\u0423\u0440\u043E\u043A ' + lk + '</span>') +
+        '<span class="lesson-count">' + known + "/" + words.length + " \u0441\u043B\u043E\u0432</span>";
       tile.addEventListener("click", () => {
         const ctxWords = words.map((w) => Object.assign({}, w, { _book: bookId, _lesson: lk }));
         goToModeSelect({ type: "lesson", book: bookId, lesson: lk, words: ctxWords });
@@ -177,7 +181,8 @@ import { count } from './vendor/hanzi-writer.esm.js';
     renderDirectionToggle();
     if (ctx.type === "lesson") {
       const book = BOOKS.find((b) => b.id === ctx.book);
-      el("mode-select-eyebrow").textContent = book.hz + " \xB7 \u0423\u0440\u043E\u043A " + ctx.lesson;
+      const title = lessonTitleFor(ctx.book, ctx.lesson);
+      el("mode-select-eyebrow").textContent = book.hz + " \xB7 \u0423\u0440\u043E\u043A " + ctx.lesson + (title ? " \xB7 " + title.zh : "");
       renderCrumbs([
         { label: "\u7530\u5B57\u683C", action: goToRoadmap },
         { label: book.hz, action: () => goToLessons(ctx.book) },

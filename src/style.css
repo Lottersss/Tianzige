@@ -33,14 +33,6 @@ body{
 .icon-inline{width:1em; height:1em; vertical-align:-0.15em; margin-right:3px; flex-shrink:0;}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important;} }
 
-.ticker{width:100%; overflow:hidden; border-bottom:1px solid var(--line); background:var(--surface);}
-.ticker-track{display:flex; width:max-content; padding:10px 0; animation:ticker-scroll 26s linear infinite;}
-.ticker-track span{
-  display:inline-block; white-space:nowrap; font-family:var(--font-hz); font-weight:700; font-size:.875rem;
-  letter-spacing:.03em; color:var(--muted);
-}
-@keyframes ticker-scroll{ from{transform:translateX(0);} to{transform:translateX(-50%);} }
-
 /* ---------- app shell / sidebar ---------- */
 .app-shell{display:flex; align-items:flex-start;}
 .sidebar{
@@ -185,15 +177,16 @@ a{color:var(--jade);}
 .sr-source{font-size:.6875rem; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
 
 /* ---------- lesson grid ---------- */
-.lessons-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(128px,1fr)); gap:12px;}
+.lessons-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(168px,1fr)); gap:12px;}
 .lesson-tile{
   position:relative; border:1px solid var(--line); background:var(--surface); border-radius:6px;
-  padding:14px 12px; text-align:left; font:inherit; color:inherit; cursor:pointer; display:flex; flex-direction:column; gap:10px;
+  padding:14px 12px; text-align:left; font:inherit; color:inherit; cursor:pointer; display:flex; flex-direction:column; gap:6px;
 }
 .lesson-tile:hover{border-color:var(--jade);}
 .lesson-tile:focus-visible{outline:2px solid var(--jade); outline-offset:2px;}
-.lesson-num{font-weight:700; font-size:.9375rem;}
-.lesson-count{font-size:.75rem; color:var(--muted);}
+.lesson-num{font-weight:600; font-size:.6875rem; color:var(--muted); letter-spacing:.02em;}
+.lesson-title{font-weight:700; font-size:.9375rem; line-height:1.35; font-family:var(--font-hz); color:var(--ink);}
+.lesson-count{font-size:.75rem; color:var(--muted); margin-top:4px;}
 .lesson-tile .stamp-mini{
   position:absolute; top:-8px; right:-6px; width:26px; height:26px; border-radius:50%; border:1.5px solid var(--red);
   color:var(--red); background:var(--surface); display:flex; align-items:center; justify-content:center;
