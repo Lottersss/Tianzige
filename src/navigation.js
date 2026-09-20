@@ -58,6 +58,10 @@ import { count } from './vendor/hanzi-writer.esm.js';
       streakBadge.hidden = true;
     }
   }
+  export function refreshActiveCounts() {
+    renderSidebar();
+    if (!el("view-roadmap").hidden) renderRoadmap();
+  }
   export function renderCrumbs(parts) {
     const c = el("crumbs");
     if (!parts.length) {

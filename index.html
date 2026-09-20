@@ -68,6 +68,15 @@
       <div class="bar-track"><div class="bar-fill" id="overall-fill"></div></div>
       <span class="bar-label" id="overall-label">0/0 слов</span>
     </div>
+    <div class="sidebar-account" id="sidebar-account">
+      <div id="account-signed-out">
+        <button class="sidebar-link" id="account-open-login" type="button">Войти / регистрация</button>
+      </div>
+      <div id="account-signed-in" hidden>
+        <span class="account-email" id="account-email-text"></span>
+        <button class="sidebar-link" id="account-logout" type="button">Выйти</button>
+      </div>
+    </div>
     <div class="sidebar-backup">
       <button class="sidebar-link" id="export-progress" type="button">Экспорт прогресса</button>
       <button class="sidebar-link" id="import-progress" type="button">Импорт прогресса</button>
@@ -336,12 +345,48 @@
 
       <footer class="credits">
         Слова — из официальных списков HSK Standard Course (<a href="https://github.com/joelypoley/hsk_standard_course_vocab" target="_blank" rel="noopener">joelypoley/hsk_standard_course_vocab</a>), переводы на русский — рабочие, для тренировки. Остальные книги — уже в работе, появятся здесь по мере готовности.
-        <br>Прогресс хранится только в этом браузере.
+        <br>Прогресс хранится в этом браузере, а если войти в аккаунт — ещё и в облаке, синхронизируясь между устройствами.
       </footer>
 
     </div>
   </main>
 </div>
+
+<div class="modal-overlay" id="auth-modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <button class="modal-close" id="auth-modal-close" type="button" aria-label="Закрыть">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <h2 class="modal-title" id="auth-modal-title">Войти в Tianzige</h2>
+    <p class="modal-sub">Прогресс будет сохраняться в облаке и синхронизироваться между устройствами.</p>
+
+    <button class="auth-google-btn" id="auth-google" type="button">
+      <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+        <path d="M19.6 10.23c0-.68-.06-1.33-.17-1.96H10v3.71h5.38c-.23 1.25-.94 2.31-2 3.02v2.5h3.24c1.9-1.75 2.98-4.33 2.98-7.27z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.96-.89 6.62-2.42l-3.24-2.5c-.9.6-2.04.96-3.38.96-2.6 0-4.8-1.75-5.59-4.11H1.06v2.58C2.71 17.76 6.09 20 10 20z" fill="#34A853"/>
+        <path d="M4.41 11.93A5.99 5.99 0 0 1 4.09 10c0-.67.12-1.32.32-1.93V5.49H1.06A9.99 9.99 0 0 0 0 10c0 1.61.39 3.14 1.06 4.51l3.35-2.58z" fill="#FBBC05"/>
+        <path d="M10 3.96c1.47 0 2.79.5 3.82 1.5l2.87-2.87C14.95.99 12.7 0 10 0 6.09 0 2.71 2.24 1.06 5.49l3.35 2.58C5.2 5.71 7.4 3.96 10 3.96z" fill="#EA4335"/>
+      </svg>
+      Продолжить с Google
+    </button>
+
+    <div class="modal-divider"><span>или</span></div>
+
+    <form id="auth-form" class="auth-form" novalidate>
+      <label class="auth-label" for="auth-email">Email</label>
+      <input class="auth-input" id="auth-email" type="email" autocomplete="email" required>
+      <label class="auth-label" for="auth-password">Пароль</label>
+      <input class="auth-input" id="auth-password" type="password" autocomplete="current-password" required minlength="6">
+      <p class="auth-error" id="auth-error" hidden></p>
+      <button class="auth-submit" id="auth-submit" type="submit">Войти</button>
+    </form>
+    <p class="auth-toggle">
+      <span id="auth-toggle-text">Нет аккаунта?</span>
+      <button type="button" id="auth-toggle-mode">Зарегистрироваться</button>
+    </p>
+  </div>
+</div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

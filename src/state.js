@@ -5,6 +5,22 @@ import { ease } from './vendor/hanzi-writer.esm.js';
   export var PROGRESS_KEY = "tianzige_progress_v1";
   export var STREAK_KEY = "tianzige_streak_v1";
   export var DIRECTION_KEY = "tianzige_direction_v1";
+
+  // Lightweight pub-sub so other modules (e.g. cloud sync) can react to a
+  // progress/streak save without state.js needing to know about them —
+  // avoids a circular import between state.js and sync.js.
+  var progressListeners = [];
+  export function onProgressSave(cb) {
+    progressListeners.push(cb);
+  }
+  function notifyProgressSave() {
+    progressListeners.forEach((cb) => {
+      try {
+        cb();
+      } catch (e) {
+      }
+    });
+  }
   export function migrateEntry(v) {
     if (typeof v === "string") {
       const now = Date.now();
@@ -27,6 +43,7 @@ import { ease } from './vendor/hanzi-writer.esm.js';
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(state.PROGRESS));
     } catch (e) {
     }
+    notifyProgressSave();
   }
   export function todayStr(d) {
     d = d || /* @__PURE__ */ new Date();
@@ -44,6 +61,7 @@ import { ease } from './vendor/hanzi-writer.esm.js';
       localStorage.setItem(STREAK_KEY, JSON.stringify(state.STREAK));
     } catch (e) {
     }
+    notifyProgressSave();
   }
   export function touchStreak() {
     const s = state.STREAK;

@@ -1,5 +1,6 @@
 // src/main.js
 import './style.css';
+import './backup.js';
 import { startPracticeSession } from './cards.js';
 import { goToGrammarView, goToTextView } from './content-views.js';
 import { el } from './dom.js';
@@ -40,3 +41,8 @@ import { startWritingSession } from './writing.js';
   });
   renderSidebar();
   goToRoadmap();
+
+  // Firebase is a heavy dependency (auth + Firestore) — load it as a
+  // separate chunk after the core app is already interactive, instead of
+  // blocking first paint on it.
+  import('./auth.js');
