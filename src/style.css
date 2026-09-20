@@ -89,7 +89,7 @@ body{
 
 .modal-overlay{
   position:fixed; inset:0; background:rgba(58,47,35,.45); display:flex; align-items:center; justify-content:center;
-  padding:20px; z-index:50;
+  padding:20px; z-index:70;
 }
 .modal-card{
   position:relative; width:100%; max-width:360px; background:var(--surface); border:1px solid var(--line);
@@ -152,7 +152,11 @@ a{color:var(--jade);}
 /* ---------- hero ---------- */
 .hero{display:flex; flex-direction:column; gap:26px; position:relative;}
 .mascot{position:absolute; cursor:pointer; filter:drop-shadow(0 3px 6px rgba(58,47,35,.18));}
-.mascot-peek{width:78px; top:-10px; right:6px;}
+/* cat-peek.png is a wide, short crop — height is set explicitly (with
+   object-fit:contain to keep the art from stretching) so the clickable box
+   itself is tall enough to tap comfortably, since this is now the one
+   button that opens the site's whole navigation. */
+.mascot-peek{position:fixed; top:14px; right:18px; width:64px; height:56px; object-fit:contain; z-index:45;}
 .mascot-climb{width:34px; right:6px; bottom:4px;}
 
 @keyframes mascot-peek-hide{
@@ -176,11 +180,24 @@ a{color:var(--jade);}
 .brand-spider{transition:transform .2s ease;}
 .sidebar-brand:hover .brand-spider{transform:rotate(-10deg) scale(1.12);}
 
-@media (max-width:780px){
-  .mascot-peek{width:56px; top:-6px; right:0;}
+.cat-menu-backdrop{
+  position:fixed; inset:0; background:rgba(58,47,35,.45); z-index:60;
+  opacity:0; visibility:hidden; transition:opacity .28s ease, visibility .28s;
 }
+.cat-menu-backdrop.is-open{opacity:1; visibility:visible;}
+.cat-menu{
+  position:fixed; top:0; right:0; height:100vh; width:280px; max-width:80vw; box-sizing:border-box;
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:-8px 0 30px rgba(58,47,35,.2);
+  z-index:61; padding:26px 22px; display:flex; flex-direction:column; gap:22px; overflow-y:auto;
+  transform:translateX(100%); transition:transform .28s ease;
+}
+.cat-menu.is-open{transform:translateX(0);}
+.cat-menu-header{display:flex; align-items:center; gap:10px; margin-top:6px;}
+.cat-menu-mascot{width:34px; height:34px; object-fit:contain;}
+.cat-menu-nav{display:flex; flex-direction:column; gap:4px;}
+
 @media (max-width:480px){
-  .mascot-peek{display:none;}
+  .mascot-peek{width:56px; height:48px; top:10px; right:12px;}
 }
 .logo-hz{
   font-family:var(--font-hz); font-weight:900; font-size:1.9rem; line-height:1;
@@ -466,16 +483,6 @@ footer.credits{border-top:1px solid var(--line); padding-top:22px; font-size:.81
 footer.credits a{color:var(--muted); text-decoration:underline; text-underline-offset:2px;}
 footer.credits button{font:inherit; color:var(--muted); background:none; border:none; padding:0; text-decoration:underline; cursor:pointer;}
 
-@media (max-width: 780px){
-  .app-shell{flex-direction:column;}
-  .sidebar{
-    position:static; width:100%; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center;
-    padding:16px 20px; gap:12px 18px; border-right:none; border-bottom:1px solid var(--line);
-  }
-  .sidebar-nav{flex-direction:row; flex-wrap:wrap;}
-  .sidebar-progress{order:3; width:100%; margin-top:0;}
-  .sidebar-reset{order:4; margin-left:auto;}
-}
 @media (max-width:480px){
   .main-inner{padding:32px 16px 72px; gap:38px;}
   .match-grid{grid-template-columns:repeat(3,1fr);}

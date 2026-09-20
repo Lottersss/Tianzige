@@ -37,64 +37,9 @@
   </svg>
 </div>
 
-<div class="app-shell">
-  <aside class="sidebar">
-    <button class="sidebar-brand" id="brand-home" type="button">
-      <img class="brand-spider" src="/mascots/spider.png" alt="" aria-hidden="true">
-      <span class="logo-hz">田字格</span>
-      <span class="brand-name">Tianzige</span>
-    </button>
-    <nav class="sidebar-nav">
-      <button class="nav-item is-active" id="nav-roadmap" type="button">
-        <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 15C3 15 5 9 10 9C15 9 17 5 17 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="10" cy="9" r="1.5" fill="currentColor"/><circle cx="17" cy="5" r="1.5" fill="currentColor"/></svg></span> Roadmap
-      </button>
-      <button class="nav-item" id="nav-review" type="button">
-        <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 6.5A6.5 6.5 0 1 0 17 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 3v4h-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Повторить
-        <span class="nav-badge" id="review-badge" hidden>0</span>
-      </button>
-      <button class="nav-item" id="nav-search" type="button">
-        <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span> Поиск
-      </button>
-      <button class="nav-item" id="nav-about" type="button">
-        <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="7.2" stroke="currentColor" stroke-width="1.6"/><line x1="10" y1="9" x2="10" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.3" r="1" fill="currentColor"/></svg></span> О проекте
-      </button>
-    </nav>
-    <div class="sidebar-badges">
-      <span class="badge gold"><span class="dot"></span>сейчас: HSK 2</span>
-      <span class="badge" id="streak-badge" hidden>
-        <svg class="streak-ico" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 2c1 3-3 4-3 7a3 3 0 0 0 6 0c1 1 1.5 2.5 1.5 3.5A4.5 4.5 0 0 1 10 17a4.5 4.5 0 0 1-4.5-4.5C5.5 8 10 6 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-        <span id="streak-text"></span>
-      </span>
-    </div>
-    <div class="sidebar-progress">
-      <div class="bar-track"><div class="bar-fill" id="overall-fill"></div></div>
-      <span class="bar-label" id="overall-label">0/0 слов</span>
-    </div>
-    <div class="sidebar-account" id="sidebar-account">
-      <div id="account-signed-out">
-        <button class="sidebar-link" id="account-open-login" type="button">Войти / регистрация</button>
-      </div>
-      <div id="account-signed-in" hidden>
-        <span class="account-email" id="account-email-text"></span>
-        <button class="sidebar-link" id="account-logout" type="button">Выйти</button>
-      </div>
-    </div>
-    <div class="sidebar-backup">
-      <button class="sidebar-link" id="export-progress" type="button">Экспорт прогресса</button>
-      <button class="sidebar-link" id="import-progress" type="button">Импорт прогресса</button>
-      <input type="file" id="import-file-input" accept="application/json,.json" hidden>
-      <div class="import-confirm" id="import-confirm" hidden>
-        <p class="import-confirm-text" id="import-confirm-text"></p>
-        <div class="import-confirm-actions">
-          <button type="button" id="import-confirm-cancel">Отмена</button>
-          <button type="button" id="import-confirm-apply">Заменить</button>
-        </div>
-      </div>
-      <span class="backup-status" id="backup-status" hidden></span>
-    </div>
-    <button class="sidebar-reset" id="reset-progress" type="button">Сбросить прогресс</button>
-  </aside>
+<img class="mascot mascot-peek" src="/mascots/cat-peek.png" alt="Меню" role="button" tabindex="0">
 
+<div class="app-shell">
   <main class="app-main">
     <div class="main-inner">
 
@@ -102,7 +47,6 @@
 
       <section id="view-roadmap">
         <div class="hero">
-          <img class="mascot mascot-peek" src="/mascots/cat-peek.png" alt="" aria-hidden="true">
           <p class="eyebrow">汉语 · слова из HSK Standard Course</p>
           <h1>Путь по учебнику</h1>
           <p class="mission">Слова из твоего учебника — по книгам и урокам, как в самом Standard Course: иероглиф, пиньинь, перевод, пример предложения. Отмечай «знаю» / «ещё учу» — прогресс сохраняется прямо в браузере.</p>
@@ -390,6 +334,67 @@
     </p>
   </div>
 </div>
+
+<div class="cat-menu-backdrop" id="cat-menu-backdrop"></div>
+<aside class="cat-menu" id="cat-menu">
+  <button class="modal-close" id="cat-menu-close" type="button" aria-label="Закрыть">
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+  </button>
+  <button class="sidebar-brand" id="brand-home" type="button">
+    <img class="brand-spider" src="/mascots/spider.png" alt="" aria-hidden="true">
+    <span class="logo-hz">田字格</span>
+    <span class="brand-name">Tianzige</span>
+  </button>
+  <nav class="sidebar-nav">
+    <button class="nav-item is-active" id="nav-roadmap" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 15C3 15 5 9 10 9C15 9 17 5 17 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="10" cy="9" r="1.5" fill="currentColor"/><circle cx="17" cy="5" r="1.5" fill="currentColor"/></svg></span> Roadmap
+    </button>
+    <button class="nav-item" id="nav-review" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 6.5A6.5 6.5 0 1 0 17 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 3v4h-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Повторить
+      <span class="nav-badge" id="review-badge" hidden>0</span>
+    </button>
+    <button class="nav-item" id="nav-search" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span> Поиск
+    </button>
+    <button class="nav-item" id="nav-about" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="10" cy="10" r="7.2" stroke="currentColor" stroke-width="1.6"/><line x1="10" y1="9" x2="10" y2="14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6.3" r="1" fill="currentColor"/></svg></span> О проекте
+    </button>
+  </nav>
+  <div class="sidebar-badges">
+    <span class="badge gold"><span class="dot"></span>сейчас: HSK 2</span>
+    <span class="badge" id="streak-badge" hidden>
+      <svg class="streak-ico" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 2c1 3-3 4-3 7a3 3 0 0 0 6 0c1 1 1.5 2.5 1.5 3.5A4.5 4.5 0 0 1 10 17a4.5 4.5 0 0 1-4.5-4.5C5.5 8 10 6 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      <span id="streak-text"></span>
+    </span>
+  </div>
+  <div class="sidebar-progress">
+    <div class="bar-track"><div class="bar-fill" id="overall-fill"></div></div>
+    <span class="bar-label" id="overall-label">0/0 слов</span>
+  </div>
+  <div class="sidebar-account" id="sidebar-account">
+    <div id="account-signed-out">
+      <button class="sidebar-link" id="account-open-login" type="button">Войти / регистрация</button>
+    </div>
+    <div id="account-signed-in" hidden>
+      <span class="account-email" id="account-email-text"></span>
+      <button class="sidebar-link" id="account-logout" type="button">Выйти</button>
+    </div>
+  </div>
+  <div class="sidebar-backup">
+    <button class="sidebar-link" id="export-progress" type="button">Экспорт прогресса</button>
+    <button class="sidebar-link" id="import-progress" type="button">Импорт прогресса</button>
+    <input type="file" id="import-file-input" accept="application/json,.json" hidden>
+    <div class="import-confirm" id="import-confirm" hidden>
+      <p class="import-confirm-text" id="import-confirm-text"></p>
+      <div class="import-confirm-actions">
+        <button type="button" id="import-confirm-cancel">Отмена</button>
+        <button type="button" id="import-confirm-apply">Заменить</button>
+      </div>
+    </div>
+    <span class="backup-status" id="backup-status" hidden></span>
+  </div>
+  <button class="sidebar-reset" id="reset-progress" type="button">Сбросить прогресс</button>
+</aside>
 
   <script type="module" src="/src/main.js"></script>
 </body>
