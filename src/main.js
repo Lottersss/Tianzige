@@ -1,6 +1,7 @@
 // src/main.js
 import './style.css';
 import './backup.js';
+import './mascots.js';
 import { startPracticeSession } from './cards.js';
 import { goToGrammarView, goToTextView } from './content-views.js';
 import { el } from './dom.js';
