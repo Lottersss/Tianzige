@@ -14,6 +14,10 @@
   --jade-soft:#E4EADB;
   --gold:#BD8F35;
   --gold-soft:#F3E6C3;
+  --blue:#4C7A8C;
+  --blue-soft:#D9E5E8;
+  --plum:#8C5A7C;
+  --plum-soft:#EAD9E4;
   --font-ui:'Golos Text', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-hz:'Noto Serif SC', "PingFang SC", "Microsoft YaHei", serif;
 }
@@ -160,8 +164,26 @@ a{color:var(--jade);}
    object-fit:contain to keep the art from stretching) so the clickable box
    itself is tall enough to tap comfortably, since this is now the one
    button that opens the site's whole navigation. */
-.mascot-peek{position:fixed; top:14px; right:18px; width:64px; height:56px; object-fit:contain; z-index:45;}
+.mascot-peek-btn{
+  position:fixed; top:14px; right:18px; width:64px; height:56px; z-index:45;
+  display:flex; align-items:center; justify-content:center;
+  background:none; border:none; padding:0; margin:0; cursor:pointer;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.mascot-peek{
+  position:static; width:100%; height:100%; object-fit:contain;
+  -webkit-user-drag:none; user-select:none;
+}
 .mascot-climb{width:34px; right:6px; bottom:4px;}
+
+.brand-persistent{
+  position:fixed; top:14px; left:18px; z-index:45;
+  display:flex; align-items:center; gap:8px;
+  background:none; border:none; padding:6px; margin:0; cursor:pointer; font:inherit; color:inherit;
+  -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.brand-persistent .brand-spider{width:34px; height:34px; transition:transform .2s ease;}
+.brand-persistent:hover .brand-spider{transform:rotate(-10deg) scale(1.12);}
 
 @keyframes mascot-peek-hide{
   0%{transform:translateY(0) rotate(0);}
@@ -201,7 +223,9 @@ a{color:var(--jade);}
 .cat-menu-nav{display:flex; flex-direction:column; gap:4px;}
 
 @media (max-width:480px){
-  .mascot-peek{width:56px; height:48px; top:10px; right:12px;}
+  .mascot-peek-btn{width:56px; height:48px; top:10px; right:12px;}
+  .brand-persistent{top:10px; left:12px; gap:0; padding:4px;}
+  .brand-persistent .logo-hz{display:none;}
 }
 .logo-hz{
   font-family:var(--font-hz); font-weight:900; font-size:1.9rem; line-height:1;
@@ -229,16 +253,23 @@ a{color:var(--jade);}
 .bar-label{font-size:.8125rem; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums;}
 
 /* ---------- roadmap ---------- */
+.hsk-sections{display:flex; flex-direction:column; gap:34px;}
+.hsk-heading{
+  display:flex; align-items:center; gap:9px; margin:0 0 14px; font-family:var(--font-ui);
+  font-weight:800; font-size:.95rem; letter-spacing:.02em; color:var(--lvl-color, var(--ink));
+}
+.hsk-dot{width:11px; height:11px; border-radius:50%; background:var(--lvl-color, var(--muted)); flex-shrink:0;}
 .roadmap-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:14px;}
 .book-card{
-  position:relative; text-align:left; border:1px solid var(--line); background:var(--surface);
+  position:relative; text-align:left; border:1px solid var(--line); border-top:3px solid var(--lvl-color, var(--line));
+  background:var(--lvl-soft, var(--surface));
   border-radius:6px; padding:16px; cursor:pointer; font:inherit; color:inherit;
   display:flex; flex-direction:column; gap:8px; overflow:visible;
 }
 .book-card:disabled{cursor:default; opacity:.55;}
-.book-card:not(:disabled):hover{border-color:var(--red);}
-.book-card:not(:disabled):focus-visible{outline:2px solid var(--red); outline-offset:2px;}
-.book-hz{font-family:var(--font-hz); font-weight:700; font-size:1.5rem; color:var(--ink);}
+.book-card:not(:disabled):hover{border-color:var(--lvl-color, var(--red));}
+.book-card:not(:disabled):focus-visible{outline:2px solid var(--lvl-color, var(--red)); outline-offset:2px;}
+.book-hz{font-family:var(--font-hz); font-weight:700; font-size:1.5rem; color:var(--lvl-color, var(--ink));}
 .book-sub{font-size:.75rem; color:var(--muted); font-weight:600;}
 .book-meta{font-size:.75rem; color:var(--muted); margin-top:auto;}
 .book-card .stamp{
@@ -251,7 +282,7 @@ a{color:var(--jade);}
   background:var(--gold); color:var(--surface); padding:3px 8px; border-radius:20px; transform:rotate(-4deg);
 }
 .book-progress-track{height:5px; border-radius:4px; background:var(--surface-2); border:1px solid var(--line); overflow:hidden;}
-.book-progress-fill{height:100%; background:var(--red); width:0%;}
+.book-progress-fill{height:100%; background:var(--lvl-color, var(--red)); width:0%;}
 .soon-tag{font-size:.6875rem; font-weight:700; color:var(--muted); border:1px dashed var(--line); border-radius:20px; padding:2px 8px; align-self:flex-start;}
 
 /* ---------- search ---------- */
@@ -488,7 +519,9 @@ footer.credits a{color:var(--muted); text-decoration:underline; text-underline-o
 footer.credits button{font:inherit; color:var(--muted); background:none; border:none; padding:0; text-decoration:underline; cursor:pointer;}
 
 @media (max-width:480px){
-  .main-inner{padding:32px 16px 72px; gap:38px;}
+  /* top padding cleared to 64px so the hero text starts below the fixed
+     spider logo and menu-trigger cat that both sit in the top corners */
+  .main-inner{padding:64px 16px 72px; gap:38px;}
   .match-grid{grid-template-columns:repeat(3,1fr);}
   .quiz-options{grid-template-columns:1fr;}
 }

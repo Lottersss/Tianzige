@@ -15,14 +15,8 @@ import { el } from './dom.js';
     el("cat-menu-backdrop").classList.remove("is-open");
   }
 
-  document.querySelectorAll(".mascot-peek").forEach((peek) => {
-    peek.addEventListener("click", openMenu);
-    peek.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        openMenu();
-      }
-    });
+  document.querySelectorAll(".mascot-peek-btn").forEach((btn) => {
+    btn.addEventListener("click", openMenu);
   });
   el("cat-menu-close").addEventListener("click", closeMenu);
   el("cat-menu-backdrop").addEventListener("click", closeMenu);

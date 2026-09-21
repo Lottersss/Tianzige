@@ -12,7 +12,14 @@
 
 <div class="bg-watercolor" aria-hidden="true"></div>
 
-<img class="mascot mascot-peek" src="/mascots/cat-peek.png" alt="Меню" role="button" tabindex="0">
+<button type="button" class="brand-persistent" id="brand-home-fixed" aria-label="蛛蛛 Zhuzhu — на главную">
+  <img class="brand-spider" src="/mascots/spider.png" alt="" aria-hidden="true">
+  <span class="logo-hz">蛛蛛</span>
+</button>
+
+<button type="button" class="mascot-peek-btn" id="menu-trigger" aria-label="Меню">
+  <img class="mascot mascot-peek" src="/mascots/cat-peek.png" alt="" aria-hidden="true">
+</button>
 
 <div class="app-shell">
   <main class="app-main">
@@ -23,13 +30,13 @@
       <section id="view-roadmap">
         <div class="hero">
           <p class="eyebrow">汉语 · слова из HSK Standard Course</p>
-          <h1>Путь по учебнику</h1>
+          <h1>Слова по уровням HSK</h1>
           <p class="mission">Слова из твоего учебника — по книгам и урокам, как в самом Standard Course: иероглиф, пиньинь, перевод, пример предложения. Отмечай «знаю» / «ещё учу» — прогресс сохраняется прямо в браузере.</p>
           <div class="status-strip">
             <span class="badge" id="loaded-badge">загружено: —</span>
           </div>
         </div>
-        <div class="roadmap-grid" id="roadmap-grid"></div>
+        <div class="hsk-sections" id="roadmap-grid"></div>
       </section>
 
       <section id="view-review-empty" hidden>
@@ -267,8 +274,7 @@
 
       <footer class="credits">
         <img class="mascot mascot-climb" src="/mascots/cat-climb.png" alt="" aria-hidden="true">
-        Слова — из официальных списков HSK Standard Course (<a href="https://github.com/joelypoley/hsk_standard_course_vocab" target="_blank" rel="noopener">joelypoley/hsk_standard_course_vocab</a>), переводы на русский — рабочие, для тренировки. Остальные книги — уже в работе, появятся здесь по мере готовности.
-        <br>Прогресс хранится в этом браузере, а если войти в аккаунт — ещё и в облаке, синхронизируясь между устройствами.
+        @lotters
       </footer>
 
     </div>

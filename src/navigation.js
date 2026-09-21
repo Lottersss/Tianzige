@@ -2,7 +2,7 @@
 import { exercisesFor, grammarFor, textsFor } from './data/content-index.js';
 import { HSK_WORDS, lessonKeysFor } from './data/index.js';
 import { lessonTitleFor } from './data/lesson-titles.js';
-import { BOOKS, CURRENT_BOOK } from './data/meta.js';
+import { BOOKS, CURRENT_BOOK, HSK_LEVELS } from './data/meta.js';
 import { el, showView, shuffle } from './dom.js';
 import { bookKnownCount, collectDueWords, lessonKnownCount, overallCount, readyBooksLabel } from './progress.js';
 import { saveDirection, state } from './state.js';
@@ -84,36 +84,69 @@ import { count } from './vendor/hanzi-writer.esm.js';
     });
   }
   export function renderRoadmap() {
-    const grid = el("roadmap-grid");
-    grid.innerHTML = "";
+    const root = el("roadmap-grid");
+    root.innerHTML = "";
+    const hasProgress = overallCount().known > 0;
+
+    // Group books by HSK level (in level order), then render one titled,
+    // color-coded section per level \u2014 each section's cards inherit its
+    // accent color via the --lvl-color custom property.
+    const byLevel = new Map();
     BOOKS.forEach((b) => {
-      const card = document.createElement("button");
-      card.className = "book-card";
-      card.type = "button";
-      card.disabled = !b.ready;
-      if (b.id === CURRENT_BOOK) {
-        const here = document.createElement("span");
-        here.className = "here";
-        here.textContent = "\u0442\u044B \u0437\u0434\u0435\u0441\u044C";
-        card.appendChild(here);
+      const lvl = b.hsk || 0;
+      if (!byLevel.has(lvl)) byLevel.set(lvl, []);
+      byLevel.get(lvl).push(b);
+    });
+
+    Array.from(byLevel.keys()).sort((a, z) => a - z).forEach((lvl) => {
+      const meta = HSK_LEVELS.find((h) => h.level === lvl);
+      const section = document.createElement("div");
+      section.className = "hsk-section";
+      if (meta) {
+        section.style.setProperty("--lvl-color", meta.color);
+        section.style.setProperty("--lvl-soft", meta.soft);
       }
-      let progressHtml = "";
-      if (b.ready) {
-        const c = bookKnownCount(b.id);
-        const pct = c.total ? Math.round(100 * c.known / c.total) : 0;
-        if (pct === 100) {
-          const st = document.createElement("span");
-          st.className = "stamp";
-          st.textContent = "\u5B8C";
-          card.appendChild(st);
+
+      const heading = document.createElement("h2");
+      heading.className = "hsk-heading";
+      heading.innerHTML = '<span class="hsk-dot"></span>' + (meta ? meta.label : "\u0414\u0440\u0443\u0433\u043E\u0435");
+      section.appendChild(heading);
+
+      const grid = document.createElement("div");
+      grid.className = "roadmap-grid";
+
+      byLevel.get(lvl).forEach((b) => {
+        const card = document.createElement("button");
+        card.className = "book-card";
+        card.type = "button";
+        card.disabled = !b.ready;
+        if (b.id === CURRENT_BOOK && hasProgress) {
+          const here = document.createElement("span");
+          here.className = "here";
+          here.textContent = "\u0442\u044B \u0437\u0434\u0435\u0441\u044C";
+          card.appendChild(here);
         }
-        progressHtml = '<div class="book-progress-track"><div class="book-progress-fill" style="width:' + pct + '%"></div></div><div class="book-meta">' + c.known + "/" + c.total + " \u0441\u043B\u043E\u0432 \u0437\u043D\u0430\u044E</div>";
-      } else {
-        progressHtml = '<span class="soon-tag">\u0441\u043A\u043E\u0440\u043E</span><div class="book-meta">' + b.lessons + " \u0443\u0440\u043E\u043A\u043E\u0432 \xB7 " + b.words + " \u0441\u043B\u043E\u0432</div>";
-      }
-      card.innerHTML += '<span class="book-hz">' + b.hz + '</span><span class="book-sub">' + b.sub + "</span>" + progressHtml;
-      if (b.ready) card.addEventListener("click", () => goToLessons(b.id));
-      grid.appendChild(card);
+        let progressHtml = "";
+        if (b.ready) {
+          const c = bookKnownCount(b.id);
+          const pct = c.total ? Math.round(100 * c.known / c.total) : 0;
+          if (pct === 100) {
+            const st = document.createElement("span");
+            st.className = "stamp";
+            st.textContent = "\u5B8C";
+            card.appendChild(st);
+          }
+          progressHtml = '<div class="book-progress-track"><div class="book-progress-fill" style="width:' + pct + '%"></div></div><div class="book-meta">' + c.known + "/" + c.total + " \u0441\u043B\u043E\u0432 \u0437\u043D\u0430\u044E</div>";
+        } else {
+          progressHtml = '<span class="soon-tag">\u0441\u043A\u043E\u0440\u043E</span><div class="book-meta">' + b.lessons + " \u0443\u0440\u043E\u043A\u043E\u0432 \xB7 " + b.words + " \u0441\u043B\u043E\u0432</div>";
+        }
+        card.innerHTML += '<span class="book-hz">' + b.hz + '</span><span class="book-sub">' + b.sub + "</span>" + progressHtml;
+        if (b.ready) card.addEventListener("click", () => goToLessons(b.id));
+        grid.appendChild(card);
+      });
+
+      section.appendChild(grid);
+      root.appendChild(section);
     });
   }
   export function goToRoadmap() {

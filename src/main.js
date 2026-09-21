@@ -1,6 +1,7 @@
 // src/main.js
 import './style.css';
 import './backup.js';
+import './cat-menu.js';
 import './mascots.js';
 import { startPracticeSession } from './cards.js';
 import { goToGrammarView, goToTextView } from './content-views.js';
@@ -29,6 +30,7 @@ import { startWritingSession } from './writing.js';
     });
   });
   el("brand-home").addEventListener("click", goToRoadmap);
+  el("brand-home-fixed").addEventListener("click", goToRoadmap);
   el("nav-roadmap").addEventListener("click", goToRoadmap);
   el("nav-review").addEventListener("click", goToReview);
   el("nav-search").addEventListener("click", goToSearch);
