@@ -41,6 +41,25 @@ import { ease } from './vendor/hanzi-writer.esm.js';
       return rec && rec.status === "known";
     }).length;
   }
+  // Урок считается пройденным только когда все его слова отмечены «знаю».
+  export function lessonDone(book, lesson) {
+    const words = HSK_WORDS[book][lesson];
+    return words.length > 0 && lessonKnownCount(book, lesson) === words.length;
+  }
+  // На какой книге стоит метка «ты здесь». Появляется только когда где-то
+  // закрыт хотя бы один урок целиком (иначе null — на чистом старте метки
+  // нет вообще), а встаёт на ту книгу, где занимались последней, чтобы не
+  // спорить с кнопкой «Продолжить». Запасной вариант — самая дальняя книга
+  // с пройденным уроком.
+  export function currentBookId() {
+    let furthest = null;
+    BOOKS.filter((b) => b.ready).forEach((b) => {
+      if (lessonKeysFor(b.id).some((lk) => lessonDone(b.id, lk))) furthest = b.id;
+    });
+    if (!furthest) return null;
+    const last = lastStudiedLesson();
+    return last ? last.book : furthest;
+  }
   export function bookKnownCount(bookId) {
     const keys = lessonKeysFor(bookId);
     let known = 0, total = 0;
@@ -69,6 +88,37 @@ import { ease } from './vendor/hanzi-writer.esm.js';
       total += c.total;
     });
     return { known, total };
+  }
+  // Последний урок, в котором что-то отмечали — для кнопки «Продолжить».
+  // Ничего нового не храним: у каждой записи прогресса уже есть lastSeen,
+  // а ключ записи сам по себе содержит книгу и урок.
+  export function lastStudiedLesson() {
+    let best = null, bestTime = 0;
+    for (const key of Object.keys(state.PROGRESS)) {
+      const rec = state.PROGRESS[key];
+      if (!rec || !rec.lastSeen || rec.lastSeen <= bestTime) continue;
+      const parts = key.split("__");
+      if (parts.length < 3) continue;
+      const book = parts[0], lesson = parts[1];
+      if (!HSK_WORDS[book] || !HSK_WORDS[book][lesson]) continue;
+      const meta = BOOKS.find((b) => b.id === book);
+      if (!meta || !meta.ready) continue;
+      bestTime = rec.lastSeen;
+      best = { book, lesson };
+    }
+    return best;
+  }
+  // Сколько слов трогали сегодня — считаем по lastSeen, без отдельного счётчика.
+  export function studiedToday() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const from = start.getTime();
+    let n = 0;
+    for (const key of Object.keys(state.PROGRESS)) {
+      const rec = state.PROGRESS[key];
+      if (rec && rec.lastSeen >= from) n += 1;
+    }
+    return n;
   }
   export function collectDueWords() {
     const out = [];

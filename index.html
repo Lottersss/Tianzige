@@ -30,13 +30,16 @@
       <section id="view-roadmap">
         <div class="hero">
           <p class="eyebrow">汉语 · слова из HSK Standard Course</p>
-          <h1>Слова по уровням HSK</h1>
-          <p class="mission">Слова из твоего учебника — по книгам и урокам, как в самом Standard Course: иероглиф, пиньинь, перевод, пример предложения. Отмечай «знаю» / «ещё учу» — прогресс сохраняется прямо в браузере.</p>
+          <h1>С чего начнём сегодня?</h1>
+          <p class="mission">Выбирай уровень и урок — внутри слова с пиньинем и примерами, текст, грамматика и упражнения. Всё, что отметишь, останется здесь.</p>
           <div class="status-strip">
             <span class="badge" id="loaded-badge">загружено: —</span>
           </div>
         </div>
-        <div class="hsk-sections" id="roadmap-grid"></div>
+        <div class="roadmap-layout">
+          <div class="hsk-sections" id="roadmap-grid"></div>
+          <aside class="home-side" id="home-side"></aside>
+        </div>
       </section>
 
       <section id="view-review-empty" hidden>
@@ -342,7 +345,7 @@
     </button>
   </nav>
   <div class="sidebar-badges">
-    <span class="badge gold"><span class="dot"></span>сейчас: HSK 2</span>
+    <span class="badge gold" id="level-badge" hidden><span class="dot"></span><span id="level-badge-text"></span></span>
     <span class="badge" id="streak-badge" hidden>
       <svg class="streak-ico" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10 2c1 3-3 4-3 7a3 3 0 0 0 6 0c1 1 1.5 2.5 1.5 3.5A4.5 4.5 0 0 1 10 17a4.5 4.5 0 0 1-4.5-4.5C5.5 8 10 6 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       <span id="streak-text"></span>

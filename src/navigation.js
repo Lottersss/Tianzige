@@ -2,9 +2,10 @@
 import { exercisesFor, grammarFor, textsFor } from './data/content-index.js';
 import { HSK_WORDS, lessonKeysFor } from './data/index.js';
 import { lessonTitleFor } from './data/lesson-titles.js';
-import { BOOKS, CURRENT_BOOK, HSK_LEVELS } from './data/meta.js';
+import { chengyuOfTheDay } from './data/chengyu.js';
+import { BOOKS, HSK_LEVELS } from './data/meta.js';
 import { el, showView, shuffle } from './dom.js';
-import { bookKnownCount, collectDueWords, lessonKnownCount, overallCount, readyBooksLabel } from './progress.js';
+import { bookKnownCount, collectDueWords, currentBookId, lastStudiedLesson, lessonKnownCount, overallCount, readyBooksLabel, studiedToday } from './progress.js';
 import { saveDirection, state } from './state.js';
 import { count } from './vendor/hanzi-writer.esm.js';
 
@@ -41,6 +42,19 @@ import { count } from './vendor/hanzi-writer.esm.js';
     el("overall-label").textContent = o.known + "/" + o.total + " \u0441\u043B\u043E\u0432";
     const readyWords = BOOKS.filter((b) => b.ready).reduce((s, b) => s + b.words, 0);
     el("loaded-badge").textContent = "\u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043D\u043E: " + readyWords + " \u0441\u043B\u043E\u0432 (" + readyBooksLabel() + ")";
+    // «сейчас: HSK N» — тоже не по умолчанию: показываем только когда есть
+    // реально пройденный урок, и берём уровень той же книги, на которой
+    // стоит метка «ты здесь», чтобы эти две подписи не спорили друг с другом.
+    const hereBook = currentBookId();
+    const levelBadge = el("level-badge");
+    if (hereBook) {
+      const hb = BOOKS.find((b) => b.id === hereBook);
+      const lvl = HSK_LEVELS.find((h) => h.level === (hb && hb.hsk));
+      el("level-badge-text").textContent = "сейчас: " + (lvl ? lvl.label : "HSK " + (hb ? hb.hsk : ""));
+      levelBadge.hidden = false;
+    } else {
+      levelBadge.hidden = true;
+    }
     const due = collectDueWords().length;
     const badge = el("review-badge");
     if (due > 0) {
@@ -86,7 +100,10 @@ import { count } from './vendor/hanzi-writer.esm.js';
   export function renderRoadmap() {
     const root = el("roadmap-grid");
     root.innerHTML = "";
-    const hasProgress = overallCount().known > 0;
+    // Метка «ты здесь» — не по умолчанию: она появляется только после того,
+    // как полностью закрыт хотя бы один урок, и стоит на той книге, где это
+    // произошло (currentBookId вернёт null, пока ни один урок не пройден).
+    const hereBook = currentBookId();
 
     // Group books by HSK level (in level order), then render one titled,
     // color-coded section per level \u2014 each section's cards inherit its
@@ -120,7 +137,7 @@ import { count } from './vendor/hanzi-writer.esm.js';
         card.className = "book-card";
         card.type = "button";
         card.disabled = !b.ready;
-        if (b.id === CURRENT_BOOK && hasProgress) {
+        if (hereBook && b.id === hereBook) {
           const here = document.createElement("span");
           here.className = "here";
           here.textContent = "\u0442\u044B \u0437\u0434\u0435\u0441\u044C";
@@ -136,11 +153,14 @@ import { count } from './vendor/hanzi-writer.esm.js';
             st.textContent = "\u5B8C";
             card.appendChild(st);
           }
-          progressHtml = '<div class="book-progress-track"><div class="book-progress-fill" style="width:' + pct + '%"></div></div><div class="book-meta">' + c.known + "/" + c.total + " \u0441\u043B\u043E\u0432 \u0437\u043D\u0430\u044E</div>";
+          progressHtml = '<div class="book-progress-track"><div class="book-progress-fill" style="width:' + pct + '%"></div></div><div class="book-meta">' + c.known + "/" + c.total + " \u0441\u043B\u043E\u0432 \u0437\u043D\u0430\u044E \xB7 " + b.lessons + " \u0443\u0440\u043E\u043A\u043E\u0432</div>";
         } else {
           progressHtml = '<span class="soon-tag">\u0441\u043A\u043E\u0440\u043E</span><div class="book-meta">' + b.lessons + " \u0443\u0440\u043E\u043A\u043E\u0432 \xB7 " + b.words + " \u0441\u043B\u043E\u0432</div>";
         }
-        card.innerHTML += '<span class="book-hz">' + b.hz + '</span><span class="book-sub">' + b.sub + "</span>" + progressHtml;
+        card.innerHTML += '<span class="book-num">' + b.hsk + "</span>" +
+          '<span class="book-head"><span class="book-hz">' + b.hz + '</span><span class="book-sub">' + b.sub + "</span>" +
+          (b.desc ? '<span class="book-desc">' + b.desc + "</span>" : "") + "</span>" +
+          '<span class="book-foot">' + progressHtml + "</span>";
         if (b.ready) card.addEventListener("click", () => goToLessons(b.id));
         grid.appendChild(card);
       });
@@ -148,6 +168,82 @@ import { count } from './vendor/hanzi-writer.esm.js';
       section.appendChild(grid);
       root.appendChild(section);
     });
+    renderHomeSide();
+  }
+  export function ruWords(n) {
+    const mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return "слово";
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return "слова";
+    return "слов";
+  }
+  // Правая колонка на главной: «Продолжить», короткая сводка за сегодня и
+  // чэнъюй дня. Ничего из этого не хранится отдельно — всё считается из
+  // того же прогресса, что и роадмап.
+  export function renderHomeSide() {
+    const root = el("home-side");
+    root.innerHTML = "";
+
+    // --- Продолжить -------------------------------------------------------
+    const last = lastStudiedLesson();
+    const target = last || (BOOKS.find((b) => b.ready) ? { book: BOOKS.find((b) => b.ready).id, lesson: lessonKeysFor(BOOKS.find((b) => b.ready).id)[0] } : null);
+    if (target) {
+      const book = BOOKS.find((b) => b.id === target.book);
+      const title = lessonTitleFor(target.book, target.lesson);
+      const known = lessonKnownCount(target.book, target.lesson);
+      const total = HSK_WORDS[target.book][target.lesson].length;
+      const card = document.createElement("div");
+      card.className = "side-card side-resume";
+      card.innerHTML =
+        '<span class="side-label">' + (last ? "Продолжить" : "Начать") + "</span>" +
+        '<span class="side-lesson-hz">' + (title ? title.zh : "Урок " + target.lesson) + "</span>" +
+        '<span class="side-lesson-sub">' + book.hz + " \xB7 урок " + target.lesson + "</span>" +
+        '<div class="side-bar"><div class="side-bar-fill" style="width:' + (total ? Math.round(100 * known / total) : 0) + '%"></div></div>' +
+        '<span class="side-meta">' + known + "/" + total + " слов знаю</span>";
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "side-btn";
+      btn.textContent = last ? "Продолжить →" : "Начать →";
+      btn.addEventListener("click", () => {
+        const words = HSK_WORDS[target.book][target.lesson].map((w) => Object.assign({}, w, { _book: target.book, _lesson: target.lesson }));
+        goToModeSelect({ type: "lesson", book: target.book, lesson: target.lesson, words });
+      });
+      card.appendChild(btn);
+      root.appendChild(card);
+    }
+
+    // --- Сегодня ----------------------------------------------------------
+    const today = studiedToday();
+    const due = collectDueWords().length;
+    const streak = state.STREAK.current;
+    const stats = document.createElement("div");
+    stats.className = "side-card";
+    stats.innerHTML =
+      '<span class="side-label">Сегодня</span>' +
+      '<div class="side-stats">' +
+        '<div class="side-stat"><b>' + today + "</b><span>" + ruWords(today) + " за день</span></div>" +
+        '<div class="side-stat"><b>' + streak + "</b><span>" + ruDays(streak) + " подряд</span></div>" +
+        '<div class="side-stat"><b>' + due + "</b><span>ждут повтора</span></div>" +
+      "</div>";
+    if (due > 0) {
+      const rbtn = document.createElement("button");
+      rbtn.type = "button";
+      rbtn.className = "side-btn ghost";
+      rbtn.textContent = "Повторить →";
+      rbtn.addEventListener("click", goToReview);
+      stats.appendChild(rbtn);
+    }
+    root.appendChild(stats);
+
+    // --- Чэнъюй дня -------------------------------------------------------
+    const cy = chengyuOfTheDay();
+    const quote = document.createElement("div");
+    quote.className = "side-card side-chengyu";
+    quote.innerHTML =
+      '<span class="side-label">Чэнъюй дня</span>' +
+      '<span class="chengyu-hz">' + cy.h + "</span>" +
+      '<span class="chengyu-py">' + cy.p + "</span>" +
+      '<span class="chengyu-ru">' + cy.ru + "</span>";
+    root.appendChild(quote);
   }
   export function goToRoadmap() {
     showView("view-roadmap");
@@ -206,7 +302,7 @@ import { count } from './vendor/hanzi-writer.esm.js';
       grid.appendChild(tile);
     });
     renderCrumbs([
-      { label: "\u7530\u5B57\u683C", action: goToRoadmap },
+      { label: "\u86DB\u86DB", action: goToRoadmap },
       { label: book.hz }
     ]);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -221,14 +317,14 @@ import { count } from './vendor/hanzi-writer.esm.js';
       const title = lessonTitleFor(ctx.book, ctx.lesson);
       el("mode-select-eyebrow").textContent = book.hz + " \xB7 \u0423\u0440\u043E\u043A " + ctx.lesson + (title ? " \xB7 " + title.zh : "");
       renderCrumbs([
-        { label: "\u7530\u5B57\u683C", action: goToRoadmap },
+        { label: "\u86DB\u86DB", action: goToRoadmap },
         { label: book.hz, action: () => goToLessons(ctx.book) },
         { label: "\u0423\u0440\u043E\u043A " + ctx.lesson }
       ]);
     } else {
       el("mode-select-eyebrow").textContent = "\u041F\u043E\u0432\u0442\u043E\u0440\u0435\u043D\u0438\u0435 \xB7 " + ctx.words.length + " \u0441\u043B\u043E\u0432";
       renderCrumbs([
-        { label: "\u7530\u5B57\u683C", action: goToRoadmap },
+        { label: "\u86DB\u86DB", action: goToRoadmap },
         { label: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C" }
       ]);
     }
@@ -256,14 +352,14 @@ import { count } from './vendor/hanzi-writer.esm.js';
     const studyCtx = state.studyCtx;
     if (studyCtx.type === "review") {
       renderCrumbs([
-        { label: "\u7530\u5B57\u683C", action: goToRoadmap },
+        { label: "\u86DB\u86DB", action: goToRoadmap },
         { label: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C", action: goToReview },
         { label: modeLabel(studyCtx.mode) }
       ]);
     } else {
       const book = BOOKS.find((b) => b.id === studyCtx.book);
       renderCrumbs([
-        { label: "\u7530\u5B57\u683C", action: goToRoadmap },
+        { label: "\u86DB\u86DB", action: goToRoadmap },
         { label: book.hz, action: () => goToLessons(studyCtx.book) },
         { label: "\u0423\u0440\u043E\u043A " + studyCtx.lesson, action: () => goToModeSelect(studyCtx) },
         { label: modeLabel(studyCtx.mode) }
