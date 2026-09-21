@@ -5,8 +5,24 @@
 // походка, которую не получить простым поворотом картинки.
 import { el } from './dom.js';
 
+  // Цвета берутся из CSS-переменных темы и перечитываются при её смене —
+  // иначе в тёмной теме тёмно-коричневый паук растворился бы в фоне.
   var INK = "58,47,35";       // --ink
   var SILK = "140,122,98";    // --muted
+  var EYE = "251,246,235";    // --surface
+
+  function cssRGB(name, fallback) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    var m = /^#([0-9a-f]{6})$/i.exec(v);
+    if (!m) return fallback;
+    var n = parseInt(m[1], 16);
+    return ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255);
+  }
+  function readColors() {
+    INK = cssRGB("--ink", INK);
+    SILK = cssRGB("--muted", SILK);
+    EYE = cssRGB("--surface", EYE);
+  }
 
   var LEGS = 8;
   var STEP_MS = 170;          // сколько длится перестановка одной лапы
@@ -236,7 +252,7 @@ import { el } from './dom.js';
       ctx.beginPath();
       ctx.ellipse(4.1, 0, 4.2, 3.5, 0, 0, Math.PI * 2);      // головогрудь
       ctx.fill();
-      ctx.fillStyle = "rgba(251,246,235,0.85)";
+      ctx.fillStyle = "rgba(" + EYE + ",0.85)";
       ctx.beginPath();
       ctx.arc(5.9, -1.5, 0.9, 0, Math.PI * 2);
       ctx.arc(5.9, 1.5, 0.9, 0, Math.PI * 2);
@@ -279,10 +295,15 @@ import { el } from './dom.js';
       return true;
     }
 
+    readColors();
     if (!setup()) {
       // Подвал может быть ещё нулевой высоты на первом кадре — пробуем ещё раз.
       requestAnimationFrame(setup);
     }
+    window.addEventListener("zhuzhu:themechange", () => {
+      readColors();
+      if (!running && spider) draw();
+    });
 
     window.addEventListener("resize", () => {
       if (resize()) {

@@ -95,6 +95,57 @@ import { state } from './state.js';
   }
   el("btn-learning").addEventListener("click", () => markAndAdvance("learning"));
   el("btn-known").addEventListener("click", () => markAndAdvance("known"));
+
+  // После клика мышью по «Слушать» или звёздочке фокус остался бы на кнопке,
+  // и следующий пробел нажал бы её снова вместо того, чтобы перевернуть
+  // карточку. Клик с клавиатуры (detail === 0) фокус не теряет — так Tab
+  // и Enter продолжают работать как обычно.
+  ["speak-btn", "card-star", "speak-sentence-btn"].forEach((id) => {
+    el(id).addEventListener("click", (e) => {
+      if (e.detail > 0) e.currentTarget.blur();
+    });
+  });
+
+  // Горячие клавиши на карточках. e.code — физическая клавиша, поэтому
+  // S и F работают и на русской раскладке, где они печатают «ы» и «а».
+  document.addEventListener("keydown", (e) => {
+    if (el("view-practice").hidden) return;
+    if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+    if (!el("auth-modal").hidden || el("cat-menu").classList.contains("is-open")) return;
+    const revealed = el("reveal-btn").hidden;
+    const onControl = t && (t.tagName === "BUTTON" || t.tagName === "A");
+    switch (e.code) {
+      case "Space":
+      case "Enter":
+        // На сфокусированной кнопке пробел и Enter — её собственное нажатие.
+        if (onControl || revealed) return;
+        e.preventDefault();
+        el("reveal-btn").click();
+        break;
+      case "Digit1":
+      case "Numpad1":
+        if (!revealed) return;
+        e.preventDefault();
+        el("btn-learning").click();
+        break;
+      case "Digit2":
+      case "Numpad2":
+        if (!revealed) return;
+        e.preventDefault();
+        el("btn-known").click();
+        break;
+      case "KeyS":
+        e.preventDefault();
+        speakCurrentWord();
+        break;
+      case "KeyF":
+        e.preventDefault();
+        el("card-star").click();
+        break;
+    }
+  });
   export function finishPracticeSession() {
     const knownNow = Object.values(state.sessionMarks).filter((v) => v === "known").length;
     const learningWords = state.studyQueue.filter((w) => state.sessionMarks[w.h] === "learning");

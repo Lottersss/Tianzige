@@ -29,8 +29,10 @@ import { el } from './dom.js';
   // they do — this just closes the drawer afterwards. The export/import
   // controls are excluded: that flow needs the drawer to stay open across
   // multiple steps (pick a file, then confirm the replace).
+  // .keep-menu-open — кнопки, после которых меню должно остаться открытым:
+  // переключатель темы (чтобы сразу увидеть результат и при желании вернуть).
   el("cat-menu").addEventListener("click", (e) => {
     const btn = e.target.closest("button");
-    if (!btn || btn.closest(".sidebar-backup")) return;
+    if (!btn || btn.closest(".sidebar-backup") || btn.classList.contains("keep-menu-open")) return;
     closeMenu();
   });

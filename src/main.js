@@ -3,6 +3,7 @@ import './style.css';
 import './backup.js';
 import './cat-menu.js';
 import './mascots.js';
+import './theme.js';
 import { startPracticeSession } from './cards.js';
 import { goToGrammarView, goToTextView } from './content-views.js';
 import { el } from './dom.js';

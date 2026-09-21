@@ -18,8 +18,34 @@
   --blue-soft:#D9E5E8;
   --plum:#8C5A7C;
   --plum-soft:#EAD9E4;
+  --line-strong:#C9BFAE;
+  --scrim:241,231,211;
   --font-ui:'Golos Text', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-hz:'Noto Serif SC', "PingFang SC", "Microsoft YaHei", serif;
+}
+/* Ночная версия той же бумажной палитры: тёплый почти-чёрный вместо кремового
+   и светлые чернила. Мягкие фоны уровней (-soft) — глубокие приглушённые
+   оттенки, чтобы цвет уровня читался, но не светил. */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#16130F;
+  --surface:#211C17;
+  --surface-2:#2A241D;
+  --ink:#EDE3D1;
+  --muted:#A8977D;
+  --line:#3A3128;
+  --line-strong:#5A4E40;
+  --red:#E0775A;
+  --red-soft:#3A2420;
+  --jade:#8FB184;
+  --jade-soft:#1F2A1D;
+  --gold:#D9AE5A;
+  --gold-soft:#33291A;
+  --blue:#7FAFC2;
+  --blue-soft:#1B2830;
+  --plum:#C08BB0;
+  --plum-soft:#2E2029;
+  --scrim:16,14,12;
 }
 
 *{box-sizing:border-box;}
@@ -34,10 +60,22 @@ body{
 .bg-watercolor{
   position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
   background:
-    linear-gradient(rgba(241,231,211,.6), rgba(241,231,211,.6)),
+    linear-gradient(rgba(var(--scrim),var(--scrim-a,.6)), rgba(var(--scrim),var(--scrim-a,.6))),
     url('/bg.jpg') center/cover no-repeat;
 }
+/* В тёмной теме облака почти гасим — остаётся тёплая фактура, но текст
+   лежит на ровной тёмной подложке. */
+:root[data-theme="dark"] .bg-watercolor{--scrim-a:.84;}
 @media (max-width:720px){ .bg-watercolor{ opacity:.7; } }
+
+/* Котики и паук-логотип — чёрные силуэты: на тёмном фоне они бы просто
+   пропали. Даём им лунную обводку вместо того, чтобы перекрашивать. */
+:root[data-theme="dark"] .mascot,
+:root[data-theme="dark"] .brand-spider{
+  filter:drop-shadow(0 0 1px rgba(237,227,209,.6)) drop-shadow(0 0 6px rgba(237,227,209,.16));
+}
+:root[data-theme="dark"] .cat-menu-backdrop{background:rgba(0,0,0,.55);}
+:root[data-theme="dark"] .cat-menu{box-shadow:-8px 0 30px rgba(0,0,0,.5);}
 .icon-inline{width:1em; height:1em; vertical-align:-0.15em; margin-right:3px; flex-shrink:0;}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important;} }
 
@@ -90,6 +128,17 @@ body{
   text-decoration:underline; text-underline-offset:2px; cursor:pointer;
 }
 .sidebar-reset:hover{color:var(--red);}
+.theme-toggle{
+  display:flex; align-items:center; gap:9px; width:100%; font:inherit; font-size:.8125rem; font-weight:600;
+  color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+  padding:9px 12px; cursor:pointer; text-align:left; transition:border-color .15s ease;
+}
+.theme-toggle:hover{border-color:var(--gold);}
+.theme-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+.theme-ico{width:16px; height:16px; flex-shrink:0; color:var(--gold);}
+.theme-ico-sun{display:none;}
+:root[data-theme="dark"] .theme-ico-moon{display:none;}
+:root[data-theme="dark"] .theme-ico-sun{display:block;}
 
 .sidebar-account{display:flex; flex-direction:column; gap:6px;}
 #account-signed-in{display:flex; flex-direction:column; gap:4px;}
@@ -513,7 +562,7 @@ a{color:var(--jade);}
 /* ---------- звёздочка ---------- */
 .star-btn{
   display:flex; align-items:center; justify-content:center; background:none; border:none;
-  padding:0; cursor:pointer; color:var(--line-strong, #c9bfae); transition:color .15s ease, transform .15s ease;
+  padding:0; cursor:pointer; color:var(--line-strong); transition:color .15s ease, transform .15s ease;
 }
 .star-btn svg{width:20px; height:20px;}
 .star-btn:hover{color:var(--gold);}
@@ -684,6 +733,14 @@ a{color:var(--jade);}
 .example-ru{font-size:.875rem; color:var(--muted);}
 
 .answer-row{display:flex; gap:12px; width:100%; max-width:340px;}
+/* Подсказка по клавишам — только там, где есть клавиатура и мышь; на
+   телефоне она была бы просто шумом. */
+.kbd-hint{display:none; font-size:.75rem; color:var(--muted); text-align:center; margin:6px 0 0; line-height:2.1;}
+.kbd-hint kbd{
+  font:inherit; font-size:.6875rem; font-weight:700; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; margin:0 2px;
+}
+@media (hover:hover) and (pointer:fine){.kbd-hint{display:block;}}
 .ans-btn{
   flex:1; font:inherit; font-weight:700; font-size:.9375rem; border-radius:24px; padding:12px 10px; cursor:pointer; border:1.5px solid var(--line); background:var(--surface); color:var(--ink);
 }
