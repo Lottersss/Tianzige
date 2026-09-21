@@ -122,15 +122,150 @@ body{
 .modal-divider{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.75rem;}
 .modal-divider::before, .modal-divider::after{content:""; flex:1; height:1px; background:var(--line);}
 
-.auth-form{display:flex; flex-direction:column; gap:4px;}
-.auth-label{font-size:.75rem; font-weight:700; color:var(--muted); margin-top:8px;}
-.auth-label:first-child{margin-top:0;}
-.auth-input{
-  font:inherit; font-size:.9375rem; padding:9px 11px; border:1px solid var(--line); border-radius:7px;
-  background:var(--bg); color:var(--ink);
+.auth-form{display:flex; flex-direction:column; gap:10px;}
+/* Поле с иконкой и «плавающей» подписью: подпись лежит внутри поля, пока оно
+   пустое, и уезжает наверх при фокусе или вводе. Держится на
+   :placeholder-shown, поэтому у инпутов стоит placeholder=" ". */
+.field{position:relative; display:flex; align-items:center;}
+.field-ico{
+  position:absolute; left:12px; width:18px; height:18px; color:var(--muted);
+  display:flex; pointer-events:none; transition:color .18s ease;
 }
-.auth-input:focus{outline:none; border-color:var(--jade);}
-.auth-error{font-size:.75rem; color:var(--red); margin:4px 0 0; line-height:1.4;}
+.field-ico svg{width:100%; height:100%;}
+.auth-input{
+  font:inherit; font-size:.9375rem; width:100%; padding:18px 12px 7px 38px;
+  border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink);
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+#auth-password.auth-input{padding-right:42px;}
+.auth-input:focus{outline:none; border-color:var(--jade); box-shadow:0 0 0 3px rgba(108,139,99,.16);}
+.field:focus-within .field-ico{color:var(--jade);}
+.field-label{
+  position:absolute; left:38px; top:50%; transform:translateY(-50%);
+  font-size:.9375rem; color:var(--muted); pointer-events:none;
+  transition:top .16s ease, font-size .16s ease, transform .16s ease, color .16s ease;
+}
+.auth-input:focus + .field-label,
+.auth-input:not(:placeholder-shown) + .field-label{
+  top:7px; transform:none; font-size:.6875rem; font-weight:700; letter-spacing:.02em;
+}
+.auth-input:focus + .field-label{color:var(--jade);}
+.field-eye{
+  position:absolute; right:8px; width:28px; height:28px; border:none; background:none; border-radius:6px;
+  color:var(--muted); cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;
+}
+.field-eye:hover{color:var(--ink); background:var(--surface-2);}
+.field-eye svg{width:17px; height:17px;}
+.field-eye .eye-shut{display:none;}
+.field-eye.is-shown .eye-open{display:none;}
+.field-eye.is-shown .eye-shut{display:block;}
+
+.auth-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+.auth-remember{display:flex; align-items:center; gap:7px; font-size:.8125rem; color:var(--muted); cursor:pointer; user-select:none;}
+.auth-remember input{width:15px; height:15px; margin:0; accent-color:var(--jade); cursor:pointer;}
+.auth-link{
+  font:inherit; font-size:.8125rem; font-weight:600; color:var(--jade); background:none; border:none;
+  padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:2px;
+}
+.auth-link:hover{color:var(--red);}
+.auth-link:disabled{opacity:.6; cursor:default;}
+.auth-error{font-size:.75rem; color:var(--red); margin:0; line-height:1.4;}
+.auth-note{font-size:.75rem; color:var(--jade); margin:0; line-height:1.45;}
+
+@keyframes modal-overlay-in{from{opacity:0;} to{opacity:1;}}
+@keyframes modal-card-in{from{opacity:0; transform:translateY(14px) scale(.975);} to{opacity:1; transform:none;}}
+@keyframes auth-field-in{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.modal-overlay{animation:modal-overlay-in .2s ease;}
+.modal-card{animation:modal-card-in .3s cubic-bezier(.2,.9,.3,1);}
+.modal-card .auth-google-btn{animation:auth-field-in .34s ease both .05s;}
+.modal-card .modal-divider{animation:auth-field-in .34s ease both .09s;}
+.modal-card .field:nth-of-type(1){animation:auth-field-in .34s ease both .13s;}
+.modal-card .field:nth-of-type(2){animation:auth-field-in .34s ease both .18s;}
+.modal-card .auth-row{animation:auth-field-in .34s ease both .23s;}
+.modal-card .auth-submit{animation:auth-field-in .34s ease both .28s;}
+
+/* ---------- вход: тёмная сцена с пауком ----------
+   Всё ниже привязано к #auth-modal — остальной сайт остаётся в светлой
+   бумажной палитре, тёмная только сама авторизация.
+   Картинка вписана целиком (contain), а не растянута (cover): края у неё
+   чисто чёрные, поэтому на чёрном фоне швов не видно, а на широком экране
+   она не мылится от двукратного увеличения. */
+#auth-modal{background:#000; overflow:hidden;}
+#auth-modal::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:url('/auth-bg.jpg') center/contain no-repeat;
+  animation:modal-overlay-in .5s ease, auth-bg-breathe 9s ease-in-out .5s infinite alternate;
+}
+/* Анимируется только transform — его браузер двигает на видеокарте. */
+@keyframes auth-bg-breathe{from{transform:scale(1);} to{transform:scale(1.04);}}
+/* На телефоне размытие стекла поверх движущегося фона пересчитывается каждый
+   кадр и может дёргаться — там фон стоит на месте. */
+@media (max-width:720px){#auth-modal::before{animation:modal-overlay-in .5s ease;}}
+/* На широком экране карточка по центру закрывала бы самое красивое —
+   светящееся тело паука. Разводим: форма слева, паук целиком справа. */
+@media (min-width:1000px){
+  #auth-modal{justify-content:flex-start; padding-left:max(7vw, 48px);}
+  #auth-modal::before{background-position:68% center;}
+}
+
+#auth-modal .modal-card{
+  z-index:1; color-scheme:dark;
+  background:rgba(6,12,18,.58);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  backdrop-filter:blur(16px) saturate(140%);
+  border:1px solid rgba(120,215,232,.2);
+  box-shadow:0 24px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05), 0 0 70px rgba(90,200,225,.08);
+}
+/* Без поддержки backdrop-filter стекло не размоется — тогда делаем его
+   почти непрозрачным, иначе текст ляжет прямо на паука. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  #auth-modal .modal-card{background:rgba(6,12,18,.88);}
+}
+#auth-modal .modal-title{color:#EAF6F8;}
+#auth-modal .modal-sub{color:rgba(205,230,236,.66);}
+#auth-modal .modal-close{color:rgba(205,230,236,.6);}
+#auth-modal .modal-close:hover{background:rgba(255,255,255,.08); color:#fff;}
+
+#auth-modal .auth-google-btn{background:rgba(255,255,255,.06); border-color:rgba(150,220,232,.22); color:#EAF6F8;}
+#auth-modal .auth-google-btn:hover{border-color:#6FD3E4; background:rgba(255,255,255,.09);}
+#auth-modal .modal-divider{color:rgba(205,230,236,.5);}
+#auth-modal .modal-divider::before, #auth-modal .modal-divider::after{background:rgba(150,220,232,.18);}
+
+#auth-modal .auth-input{background:rgba(255,255,255,.05); border-color:rgba(150,220,232,.22); color:#EAF6F8;}
+#auth-modal .auth-input:focus{border-color:#6FD3E4; box-shadow:0 0 0 3px rgba(111,211,228,.18);}
+#auth-modal .field-ico{color:rgba(205,230,236,.55);}
+#auth-modal .field:focus-within .field-ico{color:#6FD3E4;}
+#auth-modal .field-label{color:rgba(205,230,236,.6);}
+#auth-modal .auth-input:focus + .field-label{color:#6FD3E4;}
+#auth-modal .field-eye{color:rgba(205,230,236,.6);}
+#auth-modal .field-eye:hover{color:#fff; background:rgba(255,255,255,.08);}
+/* Автозаполнение (сохранённый email) браузер красит в свой светлый цвет —
+   на тёмной карточке это белое пятно. Перекрашиваем его обратно. */
+#auth-modal .auth-input:-webkit-autofill,
+#auth-modal .auth-input:-webkit-autofill:hover{
+  -webkit-text-fill-color:#EAF6F8; caret-color:#EAF6F8;
+  -webkit-box-shadow:0 0 0 1000px #0d1a22 inset;
+  transition:background-color 9999s ease-out 0s;
+}
+#auth-modal .auth-input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#EAF6F8;
+  -webkit-box-shadow:0 0 0 1000px #0d1a22 inset, 0 0 0 3px rgba(111,211,228,.18);
+}
+
+#auth-modal .auth-remember{color:rgba(205,230,236,.72);}
+#auth-modal .auth-remember input{accent-color:#6FD3E4;}
+#auth-modal .auth-link{color:#6FD3E4;}
+#auth-modal .auth-link:hover{color:#fff;}
+#auth-modal .auth-submit{
+  background:linear-gradient(135deg,#6FD3E4,#3E9FB8); color:#04131A;
+  box-shadow:0 6px 24px rgba(80,190,215,.28);
+}
+#auth-modal .auth-submit:hover{opacity:1; filter:brightness(1.08);}
+#auth-modal .auth-error{color:#FF9B85;}
+#auth-modal .auth-note{color:#8FE3C9;}
+#auth-modal .auth-toggle{color:rgba(205,230,236,.6);}
+#auth-modal .auth-toggle button{color:#6FD3E4;}
+#auth-modal .auth-toggle button:hover{color:#fff;}
 .auth-submit{
   margin-top:10px; font:inherit; font-weight:700; font-size:.9375rem; border:none; border-radius:8px;
   background:var(--jade); color:var(--surface); padding:11px; cursor:pointer;
@@ -610,7 +745,15 @@ a{color:var(--jade);}
 .order-tile.incorrect{border-color:var(--red); background:var(--red-soft); color:var(--red);}
 .order-tile:disabled{cursor:default;}
 
-footer.credits{border-top:1px solid var(--line); padding-top:22px; font-size:.8125rem; color:var(--muted); line-height:1.7; position:relative;}
+footer.credits{border-top:1px solid var(--line); padding-top:22px; font-size:.8125rem; color:var(--muted); line-height:1.7; position:relative; min-height:160px;}
+/* Паучок живёт в подвале самостоятельным слоем: не ловит клики и лежит под
+   текстом и котом, которые идут в разметке следом. */
+.web-canvas{position:absolute; left:0; right:0; bottom:0; width:100%; height:150px; pointer-events:none;}
+.credits-text{position:relative;}
+@media (max-width:480px){
+  footer.credits{min-height:130px;}
+  .web-canvas{height:120px;}
+}
 footer.credits a{color:var(--muted); text-decoration:underline; text-underline-offset:2px;}
 footer.credits button{font:inherit; color:var(--muted); background:none; border:none; padding:0; text-decoration:underline; cursor:pointer;}
 

@@ -13,6 +13,7 @@ import { goToAbout, goToReview, goToRoadmap, renderSidebar } from './navigation.
 import { startLearnSession, startTestSession } from './quiz.js';
 import { goToSearch } from './search.js';
 import { saveProgress, state } from './state.js';
+import { initWebCanvas } from './web-canvas.js';
 import { startWritingSession } from './writing.js';
 
   document.querySelectorAll(".mode-card").forEach((btn) => {
@@ -46,6 +47,7 @@ import { startWritingSession } from './writing.js';
   });
   renderSidebar();
   goToRoadmap();
+  initWebCanvas();
 
   // Firebase is a heavy dependency (auth + Firestore) — load it as a
   // separate chunk after the core app is already interactive, instead of

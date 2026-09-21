@@ -295,8 +295,9 @@
       </section>
 
       <footer class="credits">
+        <canvas class="web-canvas" id="web-canvas" aria-hidden="true"></canvas>
         <img class="mascot mascot-climb" src="/mascots/cat-climb.png" alt="" aria-hidden="true">
-        @lotters
+        <span class="credits-text">@lotters</span>
       </footer>
 
     </div>
@@ -324,11 +325,26 @@
     <div class="modal-divider"><span>или</span></div>
 
     <form id="auth-form" class="auth-form" novalidate>
-      <label class="auth-label" for="auth-email">Email</label>
-      <input class="auth-input" id="auth-email" type="email" autocomplete="email" required>
-      <label class="auth-label" for="auth-password">Пароль</label>
-      <input class="auth-input" id="auth-password" type="password" autocomplete="current-password" required minlength="6">
+      <div class="field">
+        <span class="field-ico" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="6.8" r="3.2" stroke="currentColor" stroke-width="1.5"/><path d="M3.8 17c.7-3.3 3.2-5 6.2-5s5.5 1.7 6.2 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <input class="auth-input" id="auth-email" type="email" autocomplete="email" required placeholder=" ">
+        <label class="field-label" for="auth-email">Email</label>
+      </div>
+      <div class="field">
+        <span class="field-ico" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><rect x="4" y="8.6" width="12" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 8.6V6.4a3 3 0 0 1 6 0v2.2" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="12.6" r="1.1" fill="currentColor"/></svg></span>
+        <input class="auth-input" id="auth-password" type="password" autocomplete="current-password" required minlength="6" placeholder=" ">
+        <label class="field-label" for="auth-password">Пароль</label>
+        <button class="field-eye" id="auth-eye" type="button" aria-pressed="false" aria-label="Показать пароль">
+          <svg class="eye-open" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M1.8 10S4.9 4.8 10 4.8 18.2 10 18.2 10 15.1 15.2 10 15.2 1.8 10 1.8 10z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.4" stroke="currentColor" stroke-width="1.5"/></svg>
+          <svg class="eye-shut" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 4l14 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 5.1A8.3 8.3 0 0 1 10 4.8c5.1 0 8.2 5.2 8.2 5.2a15 15 0 0 1-2.7 3.2M5.3 6.6A15.4 15.4 0 0 0 1.8 10S4.9 15.2 10 15.2c1 0 1.9-.2 2.7-.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="auth-row">
+        <label class="auth-remember"><input type="checkbox" id="auth-remember" checked><span>Запомнить меня</span></label>
+        <button class="auth-link" id="auth-forgot" type="button">Забыли пароль?</button>
+      </div>
       <p class="auth-error" id="auth-error" hidden></p>
+      <p class="auth-note" id="auth-note" hidden></p>
       <button class="auth-submit" id="auth-submit" type="submit">Войти</button>
     </form>
     <p class="auth-toggle">
