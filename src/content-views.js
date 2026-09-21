@@ -5,11 +5,16 @@ import { el, showView } from './dom.js';
 import { updateCrumbsForStudy } from './navigation.js';
 import { hasSpeech, speakText } from './speech.js';
 import { state } from './state.js';
+import { renderTappable } from './tap-translate.js';
+import { loadHsk3 } from './hsk3.js';
 import { round } from './vendor/hanzi-writer.esm.js';
 
   export function goToTextView(ctx) {
     const texts = textsFor(ctx.book, ctx.lesson);
     if (!texts) return;
+    // Словник нового HSK помогает правильно делить текст на слова; грузим его
+    // в фоне, и когда он придёт, строки пересоберутся сами (tap-translate.js).
+    loadHsk3();
     state.studyCtx = Object.assign({ mode: "text" }, ctx);
     showView("view-text");
     updateCrumbsForStudy();
@@ -31,7 +36,7 @@ import { round } from './vendor/hanzi-writer.esm.js';
         row.className = "text-line";
         const spHtml = ln.sp ? '<span class="text-line-sp">' + ln.sp + "</span>" : "";
         row.innerHTML = spHtml + '<div class="text-line-body"><p class="text-line-zh"></p><p class="text-line-py"></p><p class="text-line-ru"></p></div><button class="speak-btn speak-btn-sm text-line-speak" type="button" aria-label="Произнести"><svg class="icon-inline" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8v4h3l4 3V5L6 8H3z" fill="currentColor"/><path d="M13 7.5c1 1 1 4 0 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M15.2 5.5c2 2 2 7 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></button>';
-        row.querySelector(".text-line-zh").textContent = ln.zh;
+        renderTappable(row.querySelector(".text-line-zh"), ln.zh, ctx);
         row.querySelector(".text-line-py").textContent = ln.py;
         row.querySelector(".text-line-ru").textContent = ln.ru;
         const spk = row.querySelector(".text-line-speak");
@@ -46,6 +51,7 @@ import { round } from './vendor/hanzi-writer.esm.js';
   export function goToGrammarView(ctx) {
     const points = grammarFor(ctx.book, ctx.lesson);
     if (!points) return;
+    loadHsk3();
     state.studyCtx = Object.assign({ mode: "grammar" }, ctx);
     showView("view-grammar");
     updateCrumbsForStudy();
@@ -74,7 +80,7 @@ import { round } from './vendor/hanzi-writer.esm.js';
         const row = document.createElement("div");
         row.className = "grammar-example";
         row.innerHTML = '<p class="example-zh"></p><p class="example-pinyin"></p><p class="example-ru"></p><button class="speak-btn speak-btn-sm" type="button">Произнести</button>';
-        row.querySelector(".example-zh").textContent = ex.zh;
+        renderTappable(row.querySelector(".example-zh"), ex.zh, ctx);
         row.querySelector(".example-pinyin").textContent = ex.py;
         row.querySelector(".example-ru").textContent = ex.ru;
         const spk = row.querySelector("button");

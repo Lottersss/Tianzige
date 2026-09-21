@@ -6,12 +6,14 @@ import { chengyuOfTheDay } from './data/chengyu.js';
 import { BOOKS, HSK_LEVELS } from './data/meta.js';
 import { el, showView, shuffle } from './dom.js';
 import { bookKnownCount, collectDueWords, currentBookId, lastStudiedLesson, lessonKnownCount, overallCount, readyBooksLabel, studiedToday } from './progress.js';
-import { saveDirection, state } from './state.js';
+import { computePace } from './goal.js';
+import { liveStreak, saveDirection, state } from './state.js';
 import { count } from './vendor/hanzi-writer.esm.js';
 
   export function setActiveNav(which) {
     el("nav-roadmap").classList.toggle("is-active", which === "roadmap");
     el("nav-library").classList.toggle("is-active", which === "library");
+    el("nav-progress").classList.toggle("is-active", which === "progress");
     el("nav-review").classList.toggle("is-active", which === "review");
     el("nav-search").classList.toggle("is-active", which === "search");
     el("nav-about").classList.toggle("is-active", which === "about");
@@ -65,7 +67,7 @@ import { count } from './vendor/hanzi-writer.esm.js';
       badge.hidden = true;
     }
     const streakBadge = el("streak-badge");
-    const current = state.STREAK.current;
+    const current = liveStreak();
     if (current > 0) {
       streakBadge.hidden = false;
       el("streak-text").textContent = current + " " + ruDays(current) + " \u043F\u043E\u0434\u0440\u044F\u0434";
@@ -171,6 +173,11 @@ import { count } from './vendor/hanzi-writer.esm.js';
     });
     renderHomeSide();
   }
+  export function ruNew(n) {
+    const mod10 = n % 10, mod100 = n % 100;
+    if (mod10 === 1 && mod100 !== 11) return "новое";
+    return "новых";
+  }
   export function ruWords(n) {
     const mod10 = n % 10, mod100 = n % 100;
     if (mod10 === 1 && mod100 !== 11) return "слово";
@@ -215,7 +222,7 @@ import { count } from './vendor/hanzi-writer.esm.js';
     // --- Сегодня ----------------------------------------------------------
     const today = studiedToday();
     const due = collectDueWords().length;
-    const streak = state.STREAK.current;
+    const streak = liveStreak();
     const stats = document.createElement("div");
     stats.className = "side-card";
     stats.innerHTML =
@@ -225,6 +232,31 @@ import { count } from './vendor/hanzi-writer.esm.js';
         '<div class="side-stat"><b>' + streak + "</b><span>" + ruDays(streak) + " подряд</span></div>" +
         '<div class="side-stat"><b>' + due + "</b><span>ждут повтора</span></div>" +
       "</div>";
+
+    // План на день из «Прогресса»: сколько новых слов нужно и сколько уже есть.
+    // Кнопка ведёт на экран прогресса через пункт меню — так navigation.js не
+    // импортирует progress-view.js (тот сам импортирует navigation.js).
+    const pace = computePace();
+    const toProgress = () => el("nav-progress").click();
+    if (pace.need && (pace.state === "ontrack" || pace.state === "behind" || pace.state === "nodata")) {
+      const perDay = Math.max(1, Math.ceil(pace.need));
+      const pct = Math.min(100, Math.round((100 * pace.learnedToday) / perDay));
+      const plan = document.createElement("button");
+      plan.type = "button";
+      plan.className = "side-plan" + (pace.learnedToday >= perDay ? " is-done" : "");
+      plan.innerHTML =
+        '<span class="side-plan-top"><span>План: ' + perDay + " " + ruNew(perDay) + " в день</span><span>сегодня " + pace.learnedToday + "</span></span>" +
+        '<span class="side-plan-bar"><span style="width:' + pct + '%"></span></span>';
+      plan.addEventListener("click", toProgress);
+      stats.appendChild(plan);
+    } else if (pace.state === "nogoal" || pace.state === "past") {
+      const link = document.createElement("button");
+      link.type = "button";
+      link.className = "side-link";
+      link.textContent = pace.state === "past" ? "Дата экзамена прошла — обновить цель →" : "Поставить цель и посчитать темп →";
+      link.addEventListener("click", toProgress);
+      stats.appendChild(link);
+    }
     if (due > 0) {
       const rbtn = document.createElement("button");
       rbtn.type = "button";
@@ -246,6 +278,11 @@ import { count } from './vendor/hanzi-writer.esm.js';
       '<span class="chengyu-ru">' + cy.ru + "</span>";
     root.appendChild(quote);
   }
+  // Если цель — новый HSK, план на день ждёт словник 3.0; когда он
+  // догрузится, перерисовываем правую колонку.
+  window.addEventListener("zhuzhu:hsk3ready", () => {
+    if (!el("view-roadmap").hidden) renderHomeSide();
+  });
   export function goToRoadmap() {
     showView("view-roadmap");
     setActiveNav("roadmap");
@@ -311,9 +348,18 @@ import { count } from './vendor/hanzi-writer.esm.js';
   export function goToModeSelect(ctx) {
     state.currentCtx = ctx;
     showView("view-mode-select");
-    setActiveNav(ctx.type === "review" ? "review" : "roadmap");
+    setActiveNav(ctx.type === "review" ? "review" : ctx.type === "list" ? "library" : "roadmap");
     renderDirectionToggle();
-    if (ctx.type === "lesson") {
+    if (ctx.type === "list") {
+      // Произвольный список слов (например, из словника HSK 3.0): своя подпись
+      // и возврат туда, откуда пришли.
+      el("mode-select-eyebrow").textContent = ctx.label;
+      renderCrumbs([
+        { label: "蛛蛛", action: goToRoadmap },
+        { label: ctx.crumb, action: ctx.back },
+        { label: "Режим" }
+      ]);
+    } else if (ctx.type === "lesson") {
       const book = BOOKS.find((b) => b.id === ctx.book);
       const title = lessonTitleFor(ctx.book, ctx.lesson);
       el("mode-select-eyebrow").textContent = book.hz + " \xB7 \u0423\u0440\u043E\u043A " + ctx.lesson + (title ? " \xB7 " + title.zh : "");
@@ -351,7 +397,13 @@ import { count } from './vendor/hanzi-writer.esm.js';
   }
   export function updateCrumbsForStudy() {
     const studyCtx = state.studyCtx;
-    if (studyCtx.type === "review") {
+    if (studyCtx.type === "list") {
+      renderCrumbs([
+        { label: "\u86DB\u86DB", action: goToRoadmap },
+        { label: studyCtx.crumb, action: studyCtx.back },
+        { label: modeLabel(studyCtx.mode) }
+      ]);
+    } else if (studyCtx.type === "review") {
       renderCrumbs([
         { label: "\u86DB\u86DB", action: goToRoadmap },
         { label: "\u041F\u043E\u0432\u0442\u043E\u0440\u0438\u0442\u044C", action: goToReview },
@@ -370,7 +422,9 @@ import { count } from './vendor/hanzi-writer.esm.js';
   export function summaryActionsFor(primary) {
     const studyCtx = state.studyCtx;
     const actions = [{ label: "\u0412\u044B\u0431\u0440\u0430\u0442\u044C \u0440\u0435\u0436\u0438\u043C", primary: !!primary, action: () => goToModeSelect(studyCtx) }];
-    if (studyCtx.type === "review") {
+    if (studyCtx.type === "list") {
+      actions.push({ label: "\u041A \u0441\u043B\u043E\u0432\u043D\u0438\u043A\u0443", action: studyCtx.back });
+    } else if (studyCtx.type === "review") {
       actions.push({ label: "\u041A \u0440\u043E\u0430\u0434\u043C\u0430\u043F\u0443", action: goToRoadmap });
     } else {
       actions.push({ label: "\u041A \u0443\u0440\u043E\u043A\u0430\u043C", action: () => goToLessons(studyCtx.book) });

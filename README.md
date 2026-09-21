@@ -35,6 +35,13 @@ npm run preview   # посмотреть, что собралось
 Книга 4下 пока пустая. Появятся `book4b.js` и `book4b-content.js`, в
 `meta.js` встанет `ready: true` — и она сама зажжётся в роадмапе.
 
+## Откуда данные
+
+Слова, тексты и грамматика — из учебников HSK Standard Course. Словник
+нового HSK 3.0 (программа 2025 года, `src/data/hsk3-2025.js`) взят из
+[becky82/mteh](https://github.com/becky82/mteh), пиньинь к нему расставлен
+[pinyin-pro](https://github.com/zh-lx/pinyin-pro) (MIT) и может ошибаться в тонах.
+
 ## Деплой
 
 Пуш в `main` — дальше GitHub Actions соберёт и разложит на Pages.

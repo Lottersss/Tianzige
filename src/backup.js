@@ -1,7 +1,8 @@
 // src/backup.js
 import { el } from './dom.js';
 import { goToRoadmap, renderSidebar } from './navigation.js';
-import { migrateEntry, saveProgress, saveStreak, state } from './state.js';
+import { mergeActivity } from './activity.js';
+import { migrateEntry, saveActivity, saveFavorites, saveGoal, saveProgress, saveStreak, state } from './state.js';
 
   export function showStatus(text, isError) {
     const s = el("backup-status");
@@ -27,7 +28,10 @@ import { migrateEntry, saveProgress, saveStreak, state } from './state.js';
       version: 1,
       exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
       progress: state.PROGRESS,
-      streak: state.STREAK
+      streak: state.STREAK,
+      favorites: state.FAVORITES,
+      activity: state.ACTIVITY,
+      goal: state.GOAL
     };
     const json = JSON.stringify(payload, null, 2);
     const filename = "zhuzhu-progress-" + (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) + ".json";
@@ -91,6 +95,20 @@ import { migrateEntry, saveProgress, saveStreak, state } from './state.js';
     if (data.streak && typeof data.streak === "object") {
       state.STREAK = Object.assign({ current: 0, longest: 0, lastDate: null }, data.streak);
       saveStreak();
+    }
+    // Старые файлы экспорта этих полей не содержат — тогда текущие не трогаем.
+    if (data.favorites && typeof data.favorites === "object" && !Array.isArray(data.favorites)) {
+      state.FAVORITES = data.favorites;
+      saveFavorites();
+    }
+    // Журнал не заменяем, а сливаем: импорт не должен стирать сегодняшние занятия.
+    if (data.activity && typeof data.activity === "object" && !Array.isArray(data.activity)) {
+      state.ACTIVITY = mergeActivity(state.ACTIVITY, data.activity);
+      saveActivity();
+    }
+    if (data.goal && typeof data.goal === "object") {
+      state.GOAL = data.goal;
+      saveGoal();
     }
     const count2 = Object.keys(merged).length;
     hideImportConfirm();

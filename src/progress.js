@@ -1,6 +1,7 @@
 // src/progress.js
 import { HSK_WORDS, lessonKeysFor } from './data/index.js';
 import { BOOKS } from './data/meta.js';
+import { recordStudy } from './activity.js';
 import { saveProgress, state, touchStreak } from './state.js';
 import { ease } from './vendor/hanzi-writer.esm.js';
 
@@ -30,9 +31,29 @@ import { ease } from './vendor/hanzi-writer.esm.js';
   }
   export function setProgressStatus(book, lesson, h, status) {
     const key = wordKey(book, lesson, h);
-    state.PROGRESS[key] = scheduleNext(state.PROGRESS[key], status === "known");
+    const prev = state.PROGRESS[key];
+    // scheduleNext правит запись на месте, поэтому всё «до» снимаем заранее.
+    const wasKnown = !!(prev && prev.status === "known");
+    const everKnown = !!(prev && prev.firstKnown);
+    const prevSeen = prev ? prev.lastSeen : 0;
+    const rec = scheduleNext(prev, status === "known");
+    // «Новое слово» — то, что впервые стало «знаю». Повторение уже выученного
+    // сюда не идёт, иначе темп в «Прогрессе» врал бы в большую сторону.
+    // Слова, выученные ещё до появления журнала, помечаем задним числом —
+    // в сегодняшний счёт они не попадают.
+    let learnedNow = false;
+    if (status === "known" && !everKnown) {
+      if (wasKnown) {
+        rec.firstKnown = prevSeen || Date.now();
+      } else {
+        rec.firstKnown = Date.now();
+        learnedNow = true;
+      }
+    }
+    state.PROGRESS[key] = rec;
     saveProgress();
     touchStreak();
+    recordStudy(learnedNow);
   }
   export function lessonKnownCount(book, lesson) {
     const words = HSK_WORDS[book][lesson];

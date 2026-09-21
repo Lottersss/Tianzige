@@ -71,6 +71,50 @@
         </div>
       </section>
 
+      <section id="view-progress" hidden>
+        <div class="hero">
+          <p class="eyebrow">Прогресс</p>
+          <h1 id="progress-title">Путь до HSK 5</h1>
+        </div>
+
+        <div class="goal-card">
+          <div class="goal-form">
+            <label class="goal-field">
+              <span>Экзамен</span>
+              <select id="goal-std">
+                <option value="2.0">Старый HSK (1–6)</option>
+                <option value="3.0">Новый HSK 3.0 (1–9)</option>
+              </select>
+            </label>
+            <label class="goal-field">
+              <span>Уровень</span>
+              <select id="goal-level"></select>
+            </label>
+            <label class="goal-field">
+              <span>Дата экзамена</span>
+              <input type="date" id="goal-date">
+            </label>
+          </div>
+          <div class="goal-stats" id="goal-stats"></div>
+          <p class="goal-verdict" id="goal-verdict"></p>
+          <p class="goal-note" id="goal-note" hidden></p>
+        </div>
+
+        <div class="heat-card">
+          <div class="heat-head">
+            <h2 class="heat-title">Календарь занятий</h2>
+            <span class="heat-summary" id="heat-summary"></span>
+          </div>
+          <div class="heat-scroll" id="heat-scroll">
+            <div class="heat" id="heat"></div>
+          </div>
+          <div class="heat-foot">
+            <p class="heat-detail" id="heat-detail">Нажми на день, чтобы увидеть подробности.</p>
+            <span class="heat-legend" aria-hidden="true">меньше <i class="hl0"></i><i class="hl1"></i><i class="hl2"></i><i class="hl3"></i><i class="hl4"></i> больше</span>
+          </div>
+        </div>
+      </section>
+
       <section id="view-review-empty" hidden>
         <div class="hero">
           <p class="eyebrow">Повторение</p>
@@ -267,6 +311,7 @@
 
       <section id="view-text" hidden>
         <p class="eyebrow" id="text-eyebrow">Текст урока</p>
+        <p class="tap-hint">Нажми на любое слово в тексте — появится пиньинь и перевод.</p>
         <div class="text-list" id="text-list"></div>
       </section>
 
@@ -385,6 +430,9 @@
     <button class="nav-item" id="nav-library" type="button">
       <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="8.5" y="4" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M14.4 5.3l2.6 11.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span> Библиотека
       <span class="nav-badge" id="library-badge" hidden>0</span>
+    </button>
+    <button class="nav-item" id="nav-progress" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="3" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".35"/><rect x="8.2" y="3" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".7"/><rect x="13.4" y="3" width="3.6" height="3.6" rx=".8" fill="currentColor"/><rect x="3" y="8.2" width="3.6" height="3.6" rx=".8" fill="currentColor"/><rect x="8.2" y="8.2" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".35"/><rect x="13.4" y="8.2" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".7"/><rect x="3" y="13.4" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".7"/><rect x="8.2" y="13.4" width="3.6" height="3.6" rx=".8" fill="currentColor"/><rect x="13.4" y="13.4" width="3.6" height="3.6" rx=".8" fill="currentColor" opacity=".35"/></svg></span> Прогресс
     </button>
     <button class="nav-item" id="nav-review" type="button">
       <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 6.5A6.5 6.5 0 1 0 17 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 3v4h-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Повторить

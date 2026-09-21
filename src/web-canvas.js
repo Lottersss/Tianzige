@@ -29,6 +29,10 @@ import { el } from './dom.js';
   var STEP_REACH = 33;        // на сколько стопа может отстать, прежде чем шагнуть
   var MAX_STEPPING = 4;       // больше половины лап в воздухе одновременно — уже не паук
   var BODY_EASE = 0.055;
+  // Потолок скорости тела. Без него при резком прыжке курсора тело летело бы
+  // быстрее, чем лапы успевают переставляться (шаг — 170 мс), и они
+  // растягивались бы резинками на пол-экрана.
+  var MAX_SPEED = 3.6;        // пикселей за кадр, ~215 px/с
   var IDLE_MS = 2600;         // без курсора паук начинает бродить сам
 
   export function initWebCanvas() {
@@ -142,8 +146,14 @@ import { el } from './dom.js';
 
       spider.px = spider.x;
       spider.py = spider.y;
-      spider.x += (target.x - spider.x) * BODY_EASE;
-      spider.y += (target.y - spider.y) * BODY_EASE;
+      var mx = (target.x - spider.x) * BODY_EASE, my = (target.y - spider.y) * BODY_EASE;
+      var step = Math.sqrt(mx * mx + my * my);
+      if (step > MAX_SPEED) {
+        mx *= MAX_SPEED / step;
+        my *= MAX_SPEED / step;
+      }
+      spider.x += mx;
+      spider.y += my;
 
       var dx = spider.x - spider.px, dy = spider.y - spider.py;
       var speed = Math.sqrt(dx * dx + dy * dy);
@@ -175,10 +185,13 @@ import { el } from './dom.js';
         }
         var ideal = idealFoot(spider, leg);
         var fx = ideal.x - leg.foot.x, fy = ideal.y - leg.foot.y;
-        if (Math.sqrt(fx * fx + fy * fy) < STEP_REACH) continue;
+        var lag = Math.sqrt(fx * fx + fy * fy);
+        if (lag < STEP_REACH) continue;
         // Соседнюю лапу в паре не отрываем одновременно — иначе паук
-        // «плывёт», как будто у него нет опоры.
-        if (steppingNow >= MAX_STEPPING || spider.legs[i ^ 1].stepping) continue;
+        // «плывёт», как будто у него нет опоры. Но лапу, отставшую втрое
+        // больше обычного (после ресайза или сна вкладки), переставляем сразу.
+        var stuck = lag > STEP_REACH * 3;
+        if (!stuck && (steppingNow >= MAX_STEPPING || spider.legs[i ^ 1].stepping)) continue;
         leg.stepping = true;
         leg.t = 0;
         leg.from = { x: leg.foot.x, y: leg.foot.y };

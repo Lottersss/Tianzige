@@ -21,6 +21,7 @@ import { state } from './state.js';
   export var ALL_VIEWS = [
     "view-roadmap",
     "view-library",
+    "view-progress",
     "view-about",
     "view-review-empty",
     "view-lessons",
@@ -41,5 +42,7 @@ import { state } from './state.js';
       state.M.timerId = null;
     }
     ALL_VIEWS.forEach((v) => setHidden(v, v !== id));
+    // Всплывающие окна (карточка слова) закрываются при смене экрана.
+    window.dispatchEvent(new CustomEvent("zhuzhu:viewchange", { detail: { view: id } }));
   }
 

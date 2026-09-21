@@ -19,6 +19,7 @@
   --plum:#8C5A7C;
   --plum-soft:#EAD9E4;
   --line-strong:#C9BFAE;
+  --jade-rgb:108,139,99;
   --scrim:241,231,211;
   --font-ui:'Golos Text', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-hz:'Noto Serif SC', "PingFang SC", "Microsoft YaHei", serif;
@@ -35,6 +36,7 @@
   --muted:#A8977D;
   --line:#3A3128;
   --line-strong:#5A4E40;
+  --jade-rgb:143,177,132;
   --red:#E0775A;
   --red-soft:#3A2420;
   --jade:#8FB184;
@@ -507,6 +509,84 @@ a{color:var(--jade);}
 .side-stat b{font-size:1.5rem; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.15;}
 .side-stat span{font-size:.6875rem; color:var(--muted); font-weight:600;}
 .side-chengyu{background:var(--gold-soft); border-color:var(--gold);}
+/* План на день из «Прогресса» в карточке «Сегодня». */
+.side-plan{
+  display:flex; flex-direction:column; gap:6px; margin-top:12px; padding:10px 12px; width:100%;
+  font:inherit; text-align:left; color:var(--ink); cursor:pointer;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+}
+.side-plan:hover{border-color:var(--jade);}
+.side-plan-top{display:flex; justify-content:space-between; gap:10px; font-size:.75rem; font-weight:700;}
+.side-plan-top span:last-child{color:var(--muted); font-weight:600;}
+.side-plan-bar{height:5px; border-radius:4px; background:var(--bg); overflow:hidden;}
+.side-plan-bar span{display:block; height:100%; background:var(--jade); border-radius:4px;}
+.side-plan.is-done .side-plan-top span:last-child{color:var(--jade);}
+.side-link{
+  margin-top:10px; padding:0; font:inherit; font-size:.75rem; font-weight:700; color:var(--jade);
+  background:none; border:none; cursor:pointer; text-align:left; text-decoration:underline; text-underline-offset:2px;
+}
+.side-link:hover{color:var(--red);}
+
+/* ---------- прогресс: цель и темп ---------- */
+.goal-card, .heat-card{
+  margin-top:34px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px;
+  display:flex; flex-direction:column; gap:16px;
+}
+.heat-card{margin-top:18px;}
+.goal-form{display:flex; flex-wrap:wrap; gap:12px 18px;}
+.goal-field{display:flex; flex-direction:column; gap:5px; font-size:.75rem; font-weight:700; color:var(--muted); letter-spacing:.02em;}
+.goal-field select, .goal-field input{
+  font:inherit; font-size:.9375rem; font-weight:600; color:var(--ink); background:var(--bg);
+  border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-width:150px;
+}
+.goal-field select:focus, .goal-field input:focus{outline:none; border-color:var(--jade); box-shadow:0 0 0 3px rgba(var(--jade-rgb),.18);}
+.goal-bar{height:8px; border-radius:5px; background:var(--surface-2); overflow:hidden;}
+.goal-bar-fill{height:100%; background:var(--jade); border-radius:5px; transition:width .4s ease;}
+.goal-bar-label{margin:6px 0 0; font-size:.8125rem; color:var(--muted); font-variant-numeric:tabular-nums;}
+.goal-stat-row{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px; margin-top:14px;}
+.goal-stat{display:flex; flex-direction:column; gap:2px; padding:12px; border-radius:9px; background:var(--surface-2);}
+.goal-stat b{font-size:1.5rem; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.15;}
+.goal-stat span{font-size:.6875rem; font-weight:600; color:var(--muted); line-height:1.3;}
+@media (max-width:560px){.goal-stat-row{grid-template-columns:repeat(2, minmax(0,1fr));}}
+.goal-verdict{
+  margin:0; padding:11px 14px; border-radius:9px; font-size:.875rem; line-height:1.5;
+  background:var(--surface-2); border-left:3px solid var(--line-strong); color:var(--ink);
+}
+.goal-verdict.is-ontrack, .goal-verdict.is-done{border-left-color:var(--jade); background:var(--jade-soft);}
+.goal-verdict.is-behind, .goal-verdict.is-past{border-left-color:var(--red); background:var(--red-soft);}
+.goal-verdict.is-nodata, .goal-verdict.is-nogoal{border-left-color:var(--gold); background:var(--gold-soft);}
+.goal-note{margin:0; font-size:.75rem; color:var(--muted); line-height:1.5;}
+
+/* ---------- прогресс: календарь занятий ---------- */
+.heat-head{display:flex; align-items:baseline; justify-content:space-between; gap:8px 16px; flex-wrap:wrap;}
+.heat-title{margin:0; font-size:1rem; font-weight:800; color:var(--ink);}
+.heat-summary{font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums;}
+/* На узком экране год не помещается — сетка прокручивается вбок, при
+   открытии её сразу проматывает к сегодняшнему дню. */
+.heat-scroll{overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch;}
+.heat{display:inline-flex; flex-direction:column; gap:4px; min-width:max-content;}
+.heat-months{
+  display:grid; grid-template-columns:repeat(53, 10px); column-gap:3px; margin-left:28px;
+  font-size:.625rem; color:var(--muted); height:12px; line-height:12px;
+}
+.heat-months span{white-space:nowrap; overflow:visible;}
+.heat-body{display:flex; gap:6px;}
+.heat-days{display:grid; grid-template-rows:repeat(7, 10px); row-gap:3px; width:22px; font-size:.5625rem; line-height:10px; color:var(--muted);}
+.heat-grid{display:grid; grid-template-rows:repeat(7, 10px); grid-auto-flow:column; grid-auto-columns:10px; gap:3px;}
+.hc{width:10px; height:10px; border-radius:2px; background:var(--surface-2); cursor:pointer;}
+.hc.is-future{background:transparent; cursor:default;}
+.hl1{background:rgba(var(--jade-rgb),.3);}
+.hl2{background:rgba(var(--jade-rgb),.55);}
+.hl3{background:rgba(var(--jade-rgb),.8);}
+.hl4{background:rgb(var(--jade-rgb));}
+.hc.is-today{box-shadow:0 0 0 1.5px var(--gold);}
+.hc.is-picked{box-shadow:0 0 0 1.5px var(--ink);}
+.heat-foot{display:flex; align-items:center; justify-content:space-between; gap:8px 16px; flex-wrap:wrap;}
+.heat-detail{margin:0; font-size:.8125rem; color:var(--ink);}
+.heat-legend{display:inline-flex; align-items:center; gap:3px; font-size:.6875rem; color:var(--muted);}
+.heat-legend i{display:inline-block; width:10px; height:10px; border-radius:2px;}
+.heat-legend i.hl0{background:var(--surface-2); margin-left:4px;}
+.heat-legend i.hl4{margin-right:4px;}
 .chengyu-hz{font-family:var(--font-hz); font-size:1.15rem; font-weight:700; color:var(--ink); line-height:1.45;}
 .chengyu-py{font-size:.75rem; color:var(--muted); font-style:italic;}
 .chengyu-ru{font-size:.8125rem; color:var(--ink); line-height:1.5;}
@@ -585,9 +665,99 @@ a{color:var(--jade);}
 .lib-hz{font-family:var(--font-hz); font-weight:700; font-size:1.75rem; color:var(--red); line-height:1;}
 .lib-title{font-weight:700; font-size:1rem; color:var(--ink);}
 .lib-meta{font-size:.8125rem; color:var(--muted); line-height:1.45;}
+/* Внутри подраздела (избранное, словник) большой заголовок витрины не нужен —
+   он только отодвигает слова вниз. */
+#view-library.is-sub .hero{display:none;}
+#view-library.is-sub .lib-list{margin-top:0;}
 .lib-list{margin-top:38px; display:flex; flex-direction:column; gap:16px;}
 .lib-list-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
 .lib-list-title{font-weight:700; font-size:.9375rem; color:var(--ink);}
+
+/* ---------- словник HSK 3.0 ---------- */
+.hsk3-intro{margin:0; font-size:.8125rem; line-height:1.55; color:var(--muted); max-width:70ch;}
+.hsk3-level{
+  display:grid; grid-template-columns:auto 1fr; align-items:baseline; gap:4px 14px; width:100%;
+  padding:14px 16px; font:inherit; text-align:left; color:var(--ink); cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+}
+.hsk3-level:hover{border-color:var(--jade);}
+.hsk3-level:focus-visible{outline:2px solid var(--jade); outline-offset:2px;}
+.hsk3-level-name{font-weight:800; font-size:1rem;}
+.hsk3-level-meta{font-size:.75rem; color:var(--muted); font-variant-numeric:tabular-nums;}
+.hsk3-bar{grid-column:1 / -1; display:flex; height:6px; border-radius:4px; overflow:hidden; background:var(--surface-2); margin-top:6px;}
+.hsk3-bar-known{background:var(--jade);}
+.hsk3-bar-base{background:rgba(var(--jade-rgb),.3);}
+.hsk3-toolbar{display:flex; align-items:center; justify-content:space-between; gap:10px 16px; flex-wrap:wrap;}
+.hsk3-toolbar .side-btn{margin-top:0;}
+.hsk3-filters{display:inline-flex; gap:4px; padding:3px; border-radius:9px; background:var(--surface-2);}
+.hsk3-filter{
+  font:inherit; font-size:.75rem; font-weight:700; color:var(--muted); background:none; border:none;
+  padding:6px 11px; border-radius:7px; cursor:pointer;
+}
+.hsk3-filter.is-active{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.08);}
+.hsk3-grid{display:flex; flex-wrap:wrap; gap:6px;}
+.hz-chip{
+  display:inline-flex; flex-direction:column; align-items:center; gap:1px; min-width:52px; padding:6px 9px 5px;
+  font:inherit; color:var(--ink); cursor:pointer;
+  background:var(--surface); border:1px solid var(--line); border-radius:8px;
+}
+.hz-chip:hover, .hz-chip.is-active{border-color:var(--gold);}
+.hz-chip:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
+.hz-chip-h{font-family:var(--font-hz); font-weight:700; font-size:1.05rem; line-height:1.3;}
+.hz-chip-p{font-size:.625rem; color:var(--muted); line-height:1.2;}
+.hz-chip.is-known{background:var(--jade-soft); border-color:rgba(var(--jade-rgb),.55);}
+.hz-chip.is-known .hz-chip-h{color:var(--jade);}
+.hz-chip.is-missing{background:transparent; border-style:dashed;}
+.hz-chip.is-missing .hz-chip-h{color:var(--muted);}
+
+/* ---------- перевод по нажатию ---------- */
+.tap-hint{margin:6px 0 18px; font-size:.8125rem; color:var(--muted);}
+/* Слово в тексте выглядит как обычный текст, выдаёт себя только при наведении
+   и нажатии — иначе подчёркнутый целиком абзац читать невозможно. */
+.tw{
+  font:inherit; color:inherit; background:none; border:none; padding:0 1px; margin:0; cursor:pointer;
+  border-radius:4px; line-height:inherit; letter-spacing:inherit; transition:background-color .12s ease;
+}
+.tw:hover{background:var(--gold-soft);}
+.tw.is-active{background:var(--gold-soft); box-shadow:inset 0 -2px 0 var(--gold);}
+.tw:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
+
+.word-pop{
+  position:absolute; z-index:65; width:min(300px, calc(100vw - 24px)); box-sizing:border-box;
+  background:var(--surface); color:var(--ink); border:1px solid var(--line); border-radius:12px;
+  padding:14px 16px; box-shadow:0 14px 40px rgba(0,0,0,.18); animation:auth-field-in .16s ease;
+}
+:root[data-theme="dark"] .word-pop{box-shadow:0 14px 40px rgba(0,0,0,.55);}
+.wp-head{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.wp-hz{font-family:var(--font-hz); font-weight:700; font-size:1.6rem; line-height:1.2;}
+.wp-tools{display:flex; align-items:center; gap:4px;}
+.wp-tools .star-btn{width:32px; height:32px; border-radius:8px;}
+.wp-speak{
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer;
+  color:var(--jade); background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+}
+.wp-speak:hover{border-color:var(--jade);}
+.wp-speak:disabled{opacity:.4; cursor:default;}
+.wp-speak svg{width:17px; height:17px;}
+.wp-py{margin:4px 0 0; font-size:.9375rem; font-weight:600; color:var(--jade);}
+.wp-auto{
+  display:inline-block; margin-left:4px; padding:0 5px; border:1px dashed var(--line-strong); border-radius:4px;
+  font-size:.625rem; font-weight:700; color:var(--muted); vertical-align:2px;
+}
+.wp-ru{margin:8px 0 0; font-size:.9375rem; line-height:1.4;}
+.wp-pos{font-size:.6875rem; color:var(--muted); font-weight:600;}
+.wp-en{margin:3px 0 0; font-size:.75rem; color:var(--muted);}
+.wp-other{margin:6px 0 0; font-size:.75rem; color:var(--muted); line-height:1.4;}
+.wp-missing{margin:8px 0 0; font-size:.8125rem; color:var(--muted); line-height:1.45;}
+.wp-src{
+  display:flex; align-items:center; flex-wrap:wrap; gap:6px; margin:10px 0 0; padding-top:9px;
+  border-top:1px solid var(--line); font-size:.6875rem; color:var(--muted);
+}
+.wp-status{
+  padding:1px 7px; border-radius:10px; font-weight:800; background:var(--surface-2); color:var(--muted);
+}
+.wp-status.is-known{background:var(--jade-soft); color:var(--jade);}
+.wp-status.is-learning{background:var(--gold-soft); color:var(--gold);}
 .sr-en{font-size:.8125rem; color:var(--muted);}
 .sr-example-zh{font-family:var(--font-hz); font-size:.9375rem; margin:0; color:var(--ink);}
 .sr-example-pinyin{font-size:.8125rem; color:var(--jade); margin:0; font-weight:600;}

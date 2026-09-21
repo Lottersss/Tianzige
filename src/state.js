@@ -6,6 +6,9 @@ import { ease } from './vendor/hanzi-writer.esm.js';
   export var STREAK_KEY = "tianzige_streak_v1";
   export var DIRECTION_KEY = "tianzige_direction_v1";
   export var FAVORITES_KEY = "tianzige_favorites_v1";
+  export var ACTIVITY_KEY = "tianzige_activity_v1";
+  export var GOAL_KEY = "tianzige_goal_v1";
+  export var DEVICE_KEY = "tianzige_device_v1";
 
   // Lightweight pub-sub so other modules (e.g. cloud sync) can react to a
   // progress/streak save without state.js needing to know about them —
@@ -64,6 +67,16 @@ import { ease } from './vendor/hanzi-writer.esm.js';
     }
     notifyProgressSave();
   }
+  // Серия «на сегодня». В state.STREAK.current лежит число с последнего
+  // занятия, и если пропустить несколько дней, оно так и висит до следующего
+  // занятия — показывать его как «N дней подряд» было бы неправдой.
+  export function liveStreak() {
+    const s = state.STREAK;
+    if (!s || !s.lastDate) return 0;
+    const today = todayStr();
+    const yesterday = todayStr(new Date(Date.now() - 864e5));
+    return s.lastDate === today || s.lastDate === yesterday ? s.current : 0;
+  }
   export function touchStreak() {
     const s = state.STREAK;
     const today = todayStr();
@@ -98,6 +111,58 @@ import { ease } from './vendor/hanzi-writer.esm.js';
     }
     notifyProgressSave();
   }
+  // Журнал занятий: {"2026-09-21": {"<устройство>": [повторений, новых слов]}}.
+  // Каждое устройство пишет только в свою ячейку, а синхронизация берёт
+  // максимум по каждой — так счёт с телефона и ноутбука за один день
+  // складывается, а не затирается и не удваивается.
+  export function loadActivity() {
+    try {
+      const v = JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "{}");
+      return v && typeof v === "object" && !Array.isArray(v) ? v : {};
+    } catch (e) {
+      return {};
+    }
+  }
+  export function saveActivity() {
+    try {
+      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(state.ACTIVITY));
+    } catch (e) {
+    }
+    notifyProgressSave();
+  }
+  // Цель: {level, date: "YYYY-MM-DD", at}. `at` — когда её меняли, чтобы при
+  // синхронизации побеждала последняя правка, а не случайное устройство.
+  export function loadGoal() {
+    try {
+      const g = JSON.parse(localStorage.getItem(GOAL_KEY) || "null");
+      return g && typeof g === "object" ? g : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  export function saveGoal() {
+    try {
+      localStorage.setItem(GOAL_KEY, JSON.stringify(state.GOAL));
+    } catch (e) {
+    }
+    notifyProgressSave();
+  }
+  // Идентификатор этого браузера для журнала. Не синхронизируется: у каждого
+  // устройства он свой, иначе их счётчики слились бы в одну ячейку.
+  var cachedDevice = null;
+  export function deviceId() {
+    if (cachedDevice) return cachedDevice;
+    try {
+      cachedDevice = localStorage.getItem(DEVICE_KEY);
+      if (!cachedDevice) {
+        cachedDevice = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        localStorage.setItem(DEVICE_KEY, cachedDevice);
+      }
+    } catch (e) {
+      cachedDevice = cachedDevice || "d-local";
+    }
+    return cachedDevice;
+  }
   export function loadDirection() {
     try {
       return localStorage.getItem(DIRECTION_KEY) === "rev" ? "rev" : "fwd";
@@ -115,6 +180,8 @@ import { ease } from './vendor/hanzi-writer.esm.js';
     PROGRESS: loadProgress(),
     STREAK: loadStreak(),
     FAVORITES: loadFavorites(),
+    ACTIVITY: loadActivity(),
+    GOAL: loadGoal(),
     direction: loadDirection(),
     currentBookId: null,
     currentCtx: null,

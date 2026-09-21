@@ -10,7 +10,19 @@
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { refreshActiveCounts } from './navigation.js';
-import { onProgressSave, saveFavorites, saveProgress, saveStreak, state } from './state.js';
+import { activityEqual, mergeActivity } from './activity.js';
+import { onProgressSave, saveActivity, saveFavorites, saveGoal, saveProgress, saveStreak, state } from './state.js';
+
+// Цель — одна на человека, побеждает последняя правка (по полю at).
+function mergeGoal(local, remote) {
+  if (!local) return remote || null;
+  if (!remote) return local;
+  return (remote.at || 0) > (local.at || 0) ? remote : local;
+}
+function goalsEqual(a, b) {
+  if (!a || !b) return !a && !b;
+  return a.level === b.level && a.date === b.date && (a.at || 0) === (b.at || 0);
+}
 
 var PUSH_DELAY_MS = 1500;
 
@@ -93,6 +105,8 @@ async function pushNow(uid) {
       progress: state.PROGRESS,
       streak: state.STREAK,
       favorites: state.FAVORITES,
+      activity: state.ACTIVITY,
+      goal: state.GOAL,
       updatedAt: serverTimestamp(),
     });
   } catch (e) {
@@ -128,11 +142,15 @@ export async function syncOnSignIn(uid) {
   var mergedProgress = mergeProgressMaps(state.PROGRESS, remote && remote.progress);
   var mergedStreak = mergeStreaks(state.STREAK, remote && remote.streak);
   var mergedFavorites = mergeFavorites(state.FAVORITES, remote && remote.favorites);
+  var mergedActivity = mergeActivity(state.ACTIVITY, remote && remote.activity);
+  var mergedGoal = mergeGoal(state.GOAL, remote && remote.goal);
   var progressChanged = !progressMapsEqual(state.PROGRESS, mergedProgress);
   var streakChanged = !streaksEqual(state.STREAK, mergedStreak);
   var favoritesChanged = !favoritesEqual(state.FAVORITES, mergedFavorites);
+  var activityChanged = !activityEqual(state.ACTIVITY, mergedActivity);
+  var goalChanged = !goalsEqual(state.GOAL, mergedGoal);
 
-  if (progressChanged || streakChanged || favoritesChanged) {
+  if (progressChanged || streakChanged || favoritesChanged || activityChanged || goalChanged) {
     suppressPush = true;
     if (progressChanged) {
       state.PROGRESS = mergedProgress;
@@ -146,12 +164,21 @@ export async function syncOnSignIn(uid) {
       state.FAVORITES = mergedFavorites;
       saveFavorites();
     }
+    if (activityChanged) {
+      state.ACTIVITY = mergedActivity;
+      saveActivity();
+    }
+    if (goalChanged) {
+      state.GOAL = mergedGoal;
+      saveGoal();
+    }
     suppressPush = false;
     refreshActiveCounts();
   }
 
   var remoteBehind = !remote || !progressMapsEqual(remote.progress, mergedProgress) ||
-    !streaksEqual(remote.streak, mergedStreak) || !favoritesEqual(remote.favorites, mergedFavorites);
+    !streaksEqual(remote.streak, mergedStreak) || !favoritesEqual(remote.favorites, mergedFavorites) ||
+    !activityEqual(remote.activity, mergedActivity) || !goalsEqual(remote.goal, mergedGoal);
   if (remoteBehind) await pushNow(uid);
 }
 
