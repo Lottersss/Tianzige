@@ -42,6 +42,22 @@
         </div>
       </section>
 
+      <section id="view-library" hidden>
+        <div class="hero">
+          <p class="eyebrow">Библиотека</p>
+          <h1>Все слова в одном месте</h1>
+          <p class="mission">Учебники, избранное и поиск по всей базе. Сюда же приедут свои книги и официальные словники HSK.</p>
+        </div>
+        <div class="lib-grid" id="library-grid"></div>
+        <div class="lib-list" id="library-list" hidden>
+          <div class="lib-list-head">
+            <button class="ghost-btn" id="library-back" type="button">← К библиотеке</button>
+            <span class="lib-list-title" id="library-list-title"></span>
+          </div>
+          <div class="search-results" id="library-results"></div>
+        </div>
+      </section>
+
       <section id="view-review-empty" hidden>
         <div class="hero">
           <p class="eyebrow">Повторение</p>
@@ -170,7 +186,10 @@
               </div>
             </div>
           </div>
-          <button class="speak-btn" id="speak-btn" type="button" aria-label="Произнести слово"><svg class="icon-inline" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8v4h3l4 3V5L6 8H3z" fill="currentColor"/><path d="M13 7.5c1 1 1 4 0 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M15.2 5.5c2 2 2 7 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать</button>
+          <div class="card-tools">
+            <button class="speak-btn" id="speak-btn" type="button" aria-label="Произнести слово"><svg class="icon-inline" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 8v4h3l4 3V5L6 8H3z" fill="currentColor"/><path d="M13 7.5c1 1 1 4 0 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M15.2 5.5c2 2 2 7 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Слушать</button>
+            <button class="star-btn star-btn-card" id="card-star" type="button" aria-pressed="false" aria-label="В избранное"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.6l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L2.8 7.9l5-.7L10 2.6z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+          </div>
           <button class="reveal-btn" id="reveal-btn">Показать перевод</button>
           <div class="example" id="example" hidden>
             <p class="example-zh" id="example-zh">对不起，我来晚了。</p>
@@ -332,6 +351,10 @@
   <nav class="sidebar-nav">
     <button class="nav-item is-active" id="nav-roadmap" type="button">
       <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 15C3 15 5 9 10 9C15 9 17 5 17 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="3" cy="15" r="1.5" fill="currentColor"/><circle cx="10" cy="9" r="1.5" fill="currentColor"/><circle cx="17" cy="5" r="1.5" fill="currentColor"/></svg></span> Roadmap
+    </button>
+    <button class="nav-item" id="nav-library" type="button">
+      <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="4" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="8.5" y="4" width="4" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M14.4 5.3l2.6 11.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span> Библиотека
+      <span class="nav-badge" id="library-badge" hidden>0</span>
     </button>
     <button class="nav-item" id="nav-review" type="button">
       <span class="nav-ico"><svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 6.5A6.5 6.5 0 1 0 17 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M16 3v4h-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Повторить

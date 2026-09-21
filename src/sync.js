@@ -10,7 +10,7 @@
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from './firebase.js';
 import { refreshActiveCounts } from './navigation.js';
-import { onProgressSave, saveProgress, saveStreak, state } from './state.js';
+import { onProgressSave, saveFavorites, saveProgress, saveStreak, state } from './state.js';
 
 var PUSH_DELAY_MS = 1500;
 
@@ -47,6 +47,33 @@ function progressMapsEqual(a, b) {
   return true;
 }
 
+// Избранное сливается по метке времени каждой записи, а не объединением
+// ключей: иначе снятая на телефоне звёздочка вернулась бы с ноутбука.
+function mergeFavorites(local, remote) {
+  local = local || {};
+  remote = remote || {};
+  var out = Object.assign({}, local);
+  Object.keys(remote).forEach(function (key) {
+    var r = remote[key];
+    var l = out[key];
+    if (!r || typeof r !== "object") return;
+    if (!l || (r.at || 0) > (l.at || 0)) out[key] = { on: !!r.on, at: r.at || 0 };
+  });
+  return out;
+}
+
+function favoritesEqual(a, b) {
+  a = a || {};
+  b = b || {};
+  var ak = Object.keys(a), bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  for (var i = 0; i < ak.length; i++) {
+    var k = ak[i], x = a[k], y = b[k];
+    if (!y || !!x.on !== !!y.on || (x.at || 0) !== (y.at || 0)) return false;
+  }
+  return true;
+}
+
 function mergeStreaks(local, remote) {
   if (!local) return remote || { current: 0, longest: 0, lastDate: null };
   if (!remote) return local;
@@ -65,6 +92,7 @@ async function pushNow(uid) {
     await setDoc(progressDocRef(uid), {
       progress: state.PROGRESS,
       streak: state.STREAK,
+      favorites: state.FAVORITES,
       updatedAt: serverTimestamp(),
     });
   } catch (e) {
@@ -99,10 +127,12 @@ export async function syncOnSignIn(uid) {
 
   var mergedProgress = mergeProgressMaps(state.PROGRESS, remote && remote.progress);
   var mergedStreak = mergeStreaks(state.STREAK, remote && remote.streak);
+  var mergedFavorites = mergeFavorites(state.FAVORITES, remote && remote.favorites);
   var progressChanged = !progressMapsEqual(state.PROGRESS, mergedProgress);
   var streakChanged = !streaksEqual(state.STREAK, mergedStreak);
+  var favoritesChanged = !favoritesEqual(state.FAVORITES, mergedFavorites);
 
-  if (progressChanged || streakChanged) {
+  if (progressChanged || streakChanged || favoritesChanged) {
     suppressPush = true;
     if (progressChanged) {
       state.PROGRESS = mergedProgress;
@@ -112,11 +142,16 @@ export async function syncOnSignIn(uid) {
       state.STREAK = mergedStreak;
       saveStreak();
     }
+    if (favoritesChanged) {
+      state.FAVORITES = mergedFavorites;
+      saveFavorites();
+    }
     suppressPush = false;
     refreshActiveCounts();
   }
 
-  var remoteBehind = !remote || !progressMapsEqual(remote.progress, mergedProgress) || !streaksEqual(remote.streak, mergedStreak);
+  var remoteBehind = !remote || !progressMapsEqual(remote.progress, mergedProgress) ||
+    !streaksEqual(remote.streak, mergedStreak) || !favoritesEqual(remote.favorites, mergedFavorites);
   if (remoteBehind) await pushNow(uid);
 }
 

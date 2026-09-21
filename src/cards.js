@@ -1,6 +1,7 @@
 // src/cards.js
 import { POS_RU } from './data/meta.js';
 import { el, setHidden, showView } from './dom.js';
+import { isFav, toggleFav } from './favorites.js';
 import { showSummary, summaryActionsFor, updateCrumbsForStudy } from './navigation.js';
 import { setProgressStatus } from './progress.js';
 import { hasSpeech, speakText } from './speech.js';
@@ -39,7 +40,22 @@ import { state } from './state.js';
       el("example-ru").textContent = w.sr;
     }
     setHidden("example", true);
+    syncCardStar();
   }
+  export function syncCardStar() {
+    const w = state.studyQueue[state.studyIndex];
+    const btn = el("card-star");
+    const on = !!w && isFav(w);
+    btn.classList.toggle("is-on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+    btn.setAttribute("aria-label", on ? "Убрать из избранного" : "В избранное");
+  }
+  el("card-star").addEventListener("click", () => {
+    const w = state.studyQueue[state.studyIndex];
+    if (!w) return;
+    toggleFav(w);
+    syncCardStar();
+  });
   el("reveal-btn").addEventListener("click", () => {
     el("card").classList.add("flipped");
     el("reveal-btn").hidden = true;

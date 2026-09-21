@@ -20,6 +20,7 @@ import { state } from './state.js';
   }
   export var ALL_VIEWS = [
     "view-roadmap",
+    "view-library",
     "view-about",
     "view-review-empty",
     "view-lessons",

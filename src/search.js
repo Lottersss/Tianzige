@@ -2,6 +2,7 @@
 import { ALL_READY_WORDS } from './data/content-index.js';
 import { BOOKS, POS_RU } from './data/meta.js';
 import { el, showView } from './dom.js';
+import { makeStarButton } from './favorites.js';
 import { setActiveNav } from './navigation.js';
 import { wordKey } from './progress.js';
 import { state } from './state.js';
@@ -31,7 +32,9 @@ import { state } from './state.js';
     if (rec && rec.status === "learning") return "is-learning";
     return "";
   }
-  export function buildRow(w) {
+  // onFavChange нужен там, где от звёздочки зависит сам список (избранное:
+  // сняли — строка должна исчезнуть). В обычном поиске он не передаётся.
+  export function buildRow(w, onFavChange) {
     const row = document.createElement("div");
     row.className = "search-result";
     const btn = document.createElement("button");
@@ -51,7 +54,11 @@ import { state } from './state.js';
     btn.addEventListener("click", () => {
       detail.hidden = !detail.hidden;
     });
-    row.appendChild(btn);
+    const top = document.createElement("div");
+    top.className = "sr-top";
+    top.appendChild(btn);
+    top.appendChild(makeStarButton(w, onFavChange));
+    row.appendChild(top);
     row.appendChild(detail);
     return row;
   }

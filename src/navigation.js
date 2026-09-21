@@ -11,6 +11,7 @@ import { count } from './vendor/hanzi-writer.esm.js';
 
   export function setActiveNav(which) {
     el("nav-roadmap").classList.toggle("is-active", which === "roadmap");
+    el("nav-library").classList.toggle("is-active", which === "library");
     el("nav-review").classList.toggle("is-active", which === "review");
     el("nav-search").classList.toggle("is-active", which === "search");
     el("nav-about").classList.toggle("is-active", which === "about");

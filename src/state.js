@@ -5,6 +5,7 @@ import { ease } from './vendor/hanzi-writer.esm.js';
   export var PROGRESS_KEY = "tianzige_progress_v1";
   export var STREAK_KEY = "tianzige_streak_v1";
   export var DIRECTION_KEY = "tianzige_direction_v1";
+  export var FAVORITES_KEY = "tianzige_favorites_v1";
 
   // Lightweight pub-sub so other modules (e.g. cloud sync) can react to a
   // progress/streak save without state.js needing to know about them —
@@ -73,6 +74,30 @@ import { ease } from './vendor/hanzi-writer.esm.js';
     s.lastDate = today;
     saveStreak();
   }
+  // Избранное хранится как {ключ слова: {on, at}}, а не просто списком
+  // ключей: без отметки времени и «выключенной» записи снятая на одном
+  // устройстве звёздочка вернулась бы обратно при следующей синхронизации.
+  export function loadFavorites() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "{}");
+      const out = {};
+      for (const key of Object.keys(raw)) {
+        const v = raw[key];
+        if (v && typeof v === "object") out[key] = { on: !!v.on, at: v.at || 0 };
+        else if (v) out[key] = { on: true, at: 0 };
+      }
+      return out;
+    } catch (e) {
+      return {};
+    }
+  }
+  export function saveFavorites() {
+    try {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.FAVORITES));
+    } catch (e) {
+    }
+    notifyProgressSave();
+  }
   export function loadDirection() {
     try {
       return localStorage.getItem(DIRECTION_KEY) === "rev" ? "rev" : "fwd";
@@ -89,6 +114,7 @@ import { ease } from './vendor/hanzi-writer.esm.js';
   export var state = {
     PROGRESS: loadProgress(),
     STREAK: loadStreak(),
+    FAVORITES: loadFavorites(),
     direction: loadDirection(),
     currentBookId: null,
     currentCtx: null,
