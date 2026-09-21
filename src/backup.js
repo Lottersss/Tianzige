@@ -23,14 +23,14 @@ import { migrateEntry, saveProgress, saveStreak, state } from './state.js';
   }
   export async function doExport() {
     const payload = {
-      app: "tianzige",
+      app: "zhuzhu",
       version: 1,
       exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
       progress: state.PROGRESS,
       streak: state.STREAK
     };
     const json = JSON.stringify(payload, null, 2);
-    const filename = "tianzige-progress-" + (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) + ".json";
+    const filename = "zhuzhu-progress-" + (/* @__PURE__ */ new Date()).toISOString().slice(0, 10) + ".json";
     const downloads = await getDownloadsCapability();
     if (downloads) {
       try {
@@ -72,7 +72,7 @@ import { migrateEntry, saveProgress, saveStreak, state } from './state.js';
         return;
       }
       if (!data || typeof data.progress !== "object" || data.progress === null || Array.isArray(data.progress)) {
-        showStatus("\u0424\u0430\u0439\u043B \u043D\u0435 \u043F\u043E\u0445\u043E\u0436 \u043D\u0430 \u044D\u043A\u0441\u043F\u043E\u0440\u0442 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430 Tianzige.", true);
+        showStatus("\u0424\u0430\u0439\u043B \u043D\u0435 \u043F\u043E\u0445\u043E\u0436 \u043D\u0430 \u044D\u043A\u0441\u043F\u043E\u0440\u0442 \u043F\u0440\u043E\u0433\u0440\u0435\u0441\u0441\u0430 Zhuzhu.", true);
         return;
       }
       pendingImport = data;

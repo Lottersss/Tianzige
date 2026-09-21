@@ -1,8 +1,8 @@
 {
-  "name": "tianzige",
+  "name": "zhuzhu",
   "private": true,
   "version": "1.0.0",
-  "description": "田字格 — HSK Standard Course vocabulary trainer (7 books)",
+  "description": "蛛蛛 (Zhuzhu) — HSK Standard Course vocabulary trainer (7 books)",
   "type": "module",
   "scripts": {
     "dev": "vite",

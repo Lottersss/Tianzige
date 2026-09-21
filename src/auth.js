@@ -58,7 +58,7 @@ import { syncOnSignIn, syncOnSignOut } from './sync.js';
     mode = next;
     showError(null);
     var isSignup = mode === "signup";
-    el("auth-modal-title").textContent = isSignup ? "Регистрация в Tianzige" : "Войти в Tianzige";
+    el("auth-modal-title").textContent = isSignup ? "Регистрация в Zhuzhu" : "Войти в Zhuzhu";
     el("auth-submit").textContent = isSignup ? "Зарегистрироваться" : "Войти";
     el("auth-toggle-text").textContent = isSignup ? "Уже есть аккаунт?" : "Нет аккаунта?";
     el("auth-toggle-mode").textContent = isSignup ? "Войти" : "Зарегистрироваться";
