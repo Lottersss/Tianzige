@@ -8,15 +8,6 @@
 упражнения с проверкой. Прогресс живёт в браузере, а если войти — ещё и
 синхронизируется между устройствами.
 
-## Запуск
-
-```bash
-npm install
-npm run dev       # localhost, горячая перезагрузка
-npm run build     # сборка в dist/
-npm run preview   # посмотреть, что собралось
-```
-
 ## Что где лежит
 
 `index.html` — все экраны сразу, переключаются через `showView()`.
@@ -42,7 +33,3 @@ npm run preview   # посмотреть, что собралось
 [becky82/mteh](https://github.com/becky82/mteh), пиньинь к нему расставлен
 [pinyin-pro](https://github.com/zh-lx/pinyin-pro) (MIT) и может ошибаться в тонах.
 
-## Деплой
-
-Пуш в `main` — дальше GitHub Actions соберёт и разложит на Pages.
-Подробности в `.github/workflows/deploy.yml`.
